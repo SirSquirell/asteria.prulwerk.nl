@@ -95,7 +95,8 @@
 }
 
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%; scroll-padding-top:68px}
+@media (prefers-reduced-motion:no-preference){ html{scroll-behavior:smooth} }
 body{
   margin:0; background:var(--bg); color:var(--text);
   font-family:var(--body); font-size:16.5px; line-height:1.62;
