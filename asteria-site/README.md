@@ -1,18 +1,10 @@
-# asteria.prulwerk.nl
+# asteria-site (niet meer in gebruik)
 
-Projectpagina voor Asteria, de DEGIRO-portefeuillehistorie-extensie. Eén statisch bestand
-plus de schermafdrukken.
+Deze map bevatte tot de herbouw van de pagina de `.webp`-schermafdrukken en
+een oudere kopie van `index.html`. De live pagina staat sindsdien in de
+root van deze repo (`/index.html`), en de zeven productuitsnedes zijn nu
+echte HTML, geen schermafdrukken meer.
 
-- `index.html` bevat opmaak en tekst.
-- `shots/` bevat de schermafdrukken, allemaal uit de demomodus met gegenereerde cijfers.
-  Geen enkel bedrag komt uit een echte rekening.
-- `CNAME` zet het custom domain voor GitHub Pages.
-- `.nojekyll` slaat de Jekyll-verwerking over.
-
-De broncode van de extensie zelf staat in [Claudiclaude](https://github.com/SirSquirell/Claudiclaude).
-
-## Screenshots vernieuwen
-
-In de Claudiclaude-repo `npm run demo`, dan de secties opnemen en de bestanden in `shots/`
-vervangen. Nooit met echte data: de demomodus labelt zichzelf in de regel onder de titel,
-en dat label is precies de reden dat deze beelden publiek kunnen.
+De map staat hier alleen nog omdat verwijderen van een lege map in git geen
+verschil maakt; er hoort niets meer in te komen. Zie `CLAUDE.md` in de root
+voor hoe de site nu is opgebouwd.

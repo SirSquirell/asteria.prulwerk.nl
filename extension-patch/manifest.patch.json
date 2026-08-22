@@ -1,0 +1,14 @@
+{
+  "content_scripts": [
+    {
+      "matches": ["https://trader.degiro.nl/*"],
+      "js": ["src/content/boot.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://asteria.prulwerk.nl/*"],
+      "js": ["src/content/site.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

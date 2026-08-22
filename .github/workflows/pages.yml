@@ -1,0 +1,64 @@
+name: Deploy Pages
+
+# Bouwt en publiceert de site. De versie in de footer komt niet uit deze
+# repo: manifest.json leeft in SirSquirell/Claudiclaude, dus die repo wordt
+# hier ook gecheckout en tools/inject-version.mjs krijgt het pad ernaartoe.
+#
+# Eenmalige handmatige stap die hierbij hoort en die deze workflow niet zelf
+# kan zetten: Settings > Pages > Build and deployment > Source moet op
+# "GitHub Actions" staan in plaats van "Deploy from a branch". Zonder die
+# omzetting draait deze workflow wel, maar publiceert Pages nog steeds de
+# ongebouwde inhoud van de branch.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout asteria.prulwerk.nl
+        uses: actions/checkout@v4
+
+      - name: Checkout Claudiclaude (voor manifest.json)
+        uses: actions/checkout@v4
+        with:
+          repository: SirSquirell/Claudiclaude
+          path: claudiclaude
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Versie injecteren
+        run: node tools/inject-version.mjs --manifest claudiclaude/manifest.json
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

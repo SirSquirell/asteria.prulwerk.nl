@@ -3,309 +3,1320 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Asteria — portefeuillehistorie voor DEGIRO</title>
-<meta name="description" content="Asteria laat zien wat je DEGIRO-rekening elke dag waard was sinds je hem opende. De grafiek die DEGIRO zelf niet geeft. Alles blijft in je eigen browser.">
+<title>Asteria, portefeuillehistorie voor DEGIRO</title>
+<meta name="description" content="Chrome-extensie die uit je eigen DEGIRO-transacties, cashmutaties en dagelijkse slotkoersen terugrekent wat je portefeuille op elke dag waard was. Geen server, geen account, alles in je eigen browser.">
+<link rel="canonical" href="https://asteria.prulwerk.nl/">
+<meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#0B0B0F" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F7F7F5" media="(prefers-color-scheme: light)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C8F73A'/%3E%3Cpath d='M7 21.5 13 14l4 4.2L25 9.5' fill='none' stroke='%23131608' stroke-width='3.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;900&display=swap">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://asteria.prulwerk.nl/">
+<meta property="og:site_name" content="prulwerk.nl">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:title" content="Asteria, portefeuillehistorie voor DEGIRO">
+<meta property="og:description" content="DEGIRO toont wat je vandaag waard bent. Asteria rekent de curve terug uit je eigen transacties en slotkoersen.">
+<meta property="og:image" content="https://asteria.prulwerk.nl/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Twee panelen naast elkaar: hetzelfde bedrag, maar alleen bij Asteria staat er een curve onder.">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Asteria",
+  "alternateName": "DEGIRO Portfolio History",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Chrome 116+",
+  "softwareVersion": "0.60.3",
+  "inLanguage": "nl-NL",
+  "url": "https://asteria.prulwerk.nl/",
+  "codeRepository": "https://github.com/SirSquirell/Claudiclaude",
+  "license": "https://github.com/SirSquirell/Claudiclaude",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  "description": "Chrome-extensie die de dagelijkse waarde van een DEGIRO-portefeuille reconstrueert uit eigen transacties, cashmutaties en slotkoersen. Geen server en geen account: de data blijft in de browser van de gebruiker.",
+  "author": { "@type": "Person", "name": "prulwerk.nl", "url": "https://prulwerk.nl/" },
+  "disambiguatingDescription": "Geen product van DEGIRO en op geen enkele manier met DEGIRO verbonden."
+}
+</script>
 <style>
+/* ============================================================
+   ZELFGEHOSTE ARCHIVO. Twee statische instances, 400 en 900:
+   dat is wat de pagina echt gebruikt (body-tekst en de zware
+   koppen). Tussenliggende font-weights vallen terug op 900, wat
+   consistent is met het zware, actuele merkbeeld en scheelt een
+   derde bestand. Geen Google Fonts meer: geen DNS-lookup, geen
+   TLS-handshake en geen derde partij in het kritieke pad.
+   ============================================================ */
+@font-face{
+  font-family:"Archivo"; font-style:normal; font-weight:400; font-display:swap;
+  src:url("fonts/archivo-400.woff2") format("woff2");
+}
+@font-face{
+  font-family:"Archivo"; font-style:normal; font-weight:900; font-display:swap;
+  src:url("fonts/archivo-900.woff2") format("woff2");
+}
+
+/* ============================================================
+   PAGINA-TOKENS  (overgenomen uit de bestaande site)
+   ============================================================ */
 :root{
   --bg:#0B0B0F; --surface:#131318; --surface-2:#1A1A21; --line:#2A2A34;
-  --text:#F5F5F7; --text-2:#9A9AA3; --text-3:#6B6B76;
-  --accent:#C8F73A; --on-accent:#131608; --accent-line:#C8F73A;
-  --shadow:0 24px 60px rgb(0 0 0 / .45);
-  --r-card:18px;
+  --text:#F5F5F7; --text-2:#9A9AA3; --text-3:#83838E;
+  --accent:#C8F73A; --on-accent:#131608;
   --display:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --body:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,monospace;
+  --r:14px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --gut:clamp(20px,5vw,48px);
 }
-@media (prefers-color-scheme: light){
+@media (prefers-color-scheme:light){
   :root{
     --bg:#F7F7F5; --surface:#FFFFFF; --surface-2:#F1F1EE; --line:#E1E1DC;
-    --text:#14141A; --text-2:#5C5C66; --text-3:#8A8A93;
-    --accent:#B9E82A; --on-accent:#131608; --accent-line:#8FBB16;
-    --shadow:0 20px 50px rgb(20 20 26 / .10);
+    --text:#14141A; --text-2:#54545E; --text-3:#6E6E78;
+    --accent:#A8D419; --on-accent:#101204;
   }
 }
+
+/* App-palet: de gereconstrueerde product-UI houdt altijd zijn eigen donkere
+   kleuren, in beide paginathema's, precies zoals een schermafdruk niet meekleurt.
+   Daarom staat dit blok op :root en niet in een thema-media-query. */
+:root{
+  --a-bg:#0E1117; --a-panel:#151A22; --a-panel-2:#1B222C; --a-line:#242C38;
+  --a-text:#E8EDF5; --a-mut:#8B96A8; --a-dim:#737F91;
+  --a-blue:#5B8DEF; --a-blue-2:rgba(91,141,239,.16); --a-pink:#F2748C;
+  --a-amber:#E8964A; --a-green:#63C08A; --a-violet:#9C7CE0; --a-teal:#3FBF9E; --a-olive:#C9A227;
+}
+
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
-body{margin:0; background:var(--bg); color:var(--text);
-  font-family:var(--body); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--body); font-size:16.5px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
 a{color:inherit}
-img{max-width:100%; display:block}
-.wrap{width:100%; max-width:1080px; margin:0 auto; padding:0 24px}
+img,svg{display:block; max-width:100%}
+h1,h2,h3{font-family:var(--display); letter-spacing:-.03em; line-height:1.06; margin:0}
 
-.top{display:flex; align-items:center; justify-content:space-between; gap:16px; height:72px}
-.mark{font-family:var(--display); font-weight:900; font-size:19px; letter-spacing:-.02em; text-decoration:none}
-.mark span{color:var(--text-3); font-weight:700}
-.ghostlink{font-size:14px; color:var(--text-2); text-decoration:none;
-  padding:8px 14px; border:1px solid var(--line); border-radius:999px; white-space:nowrap;
-  transition:color .25s cubic-bezier(.16,1,.3,1), border-color .25s cubic-bezier(.16,1,.3,1)}
-.ghostlink:hover{color:var(--text); border-color:var(--text-3)}
+/* ============================================================
+   RASTER
+   ============================================================ */
+.shell{max-width:1240px; margin:0 auto; padding:0 var(--gut)}
+.col{max-width:66ch}
 
-.hero{padding:76px 0 8px}
-.eyebrow{font-family:var(--display); font-weight:700; font-size:11.5px; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--text-3); margin:0 0 20px}
-.hero h1{font-family:var(--display); font-weight:900; font-size:clamp(38px,6.4vw,64px);
-  line-height:1.04; letter-spacing:-.035em; margin:0; max-width:15ch}
-.hero h1 em{font-style:normal; position:relative; white-space:nowrap}
-.hero h1 em::after{content:""; position:absolute; left:0; right:0; bottom:.06em; height:.13em;
-  background:var(--accent-line); border-radius:2px; opacity:.9}
-.hero p{color:var(--text-2); font-size:17.5px; margin:24px 0 0; max-width:56ch}
-.actions{display:flex; flex-wrap:wrap; gap:12px; margin:34px 0 0}
-.btn{font-family:var(--display); font-weight:700; font-size:14.5px; text-decoration:none;
-  padding:12px 22px; border-radius:999px; border:1px solid transparent; white-space:nowrap;
-  transition:transform .25s cubic-bezier(.16,1,.3,1), opacity .25s}
-.btn:hover{transform:translateY(-1px)}
-.btn-primary{background:var(--accent); color:var(--on-accent)}
-.btn-ghost{border-color:var(--line); color:var(--text-2)}
-.btn-ghost:hover{color:var(--text); border-color:var(--text-3)}
+/* verticaal ritme: 132px tussen hoofdsecties, 32-48px binnen een sectie */
+.band{padding:132px 0}
+.band + .band{padding-top:0}
+@media (max-width:760px){ .band{padding:84px 0} }
 
-section{padding:72px 0 0}
-h2{font-family:var(--display); font-weight:900; font-size:clamp(26px,3.5vw,36px);
-  letter-spacing:-.03em; line-height:1.08; margin:0}
-.lead{color:var(--text-2); margin:16px 0 0; max-width:62ch}
+/* ============================================================
+   NAVIGATIE  (1 regel, 68px)
+   ============================================================ */
+.nav{
+  height:68px; display:flex; align-items:center; justify-content:space-between; gap:24px;
+  border-bottom:1px solid var(--line);
+  position:sticky; top:0; z-index:20;
+  background:color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter:saturate(140%) blur(14px);
+}
+.mark{font-family:var(--display); font-weight:900; font-size:18px; letter-spacing:-.02em; text-decoration:none}
+.mark i{font-style:normal; color:var(--text-3); font-weight:600}
+.nav-r{display:flex; align-items:center; gap:8px}
+.pill{
+  font-size:13.5px; color:var(--text-2); text-decoration:none; white-space:nowrap;
+  padding:8px 15px; border:1px solid var(--line); border-radius:999px;
+  transition:color .25s var(--ease), border-color .25s var(--ease);
+}
+.pill:hover{color:var(--text); border-color:var(--text-3)}
+@media (max-width:720px){ .nav-r .pill:not(:last-child){display:none} }
+
+/* ============================================================
+   HERO  —  asymmetrische split, visual bleedt naar de rechterrand
+   ============================================================ */
+.hero{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);
+  gap:clamp(32px,4.5vw,64px); align-items:center;
+  padding:clamp(56px,7vw,88px) 0 clamp(20px,3vw,34px);
+}
+.eyebrow{
+  font-family:var(--display); font-weight:700; font-size:11px; letter-spacing:.15em;
+  text-transform:uppercase; color:var(--text-3); margin:0 0 22px;
+}
+.hero h1{font-size:clamp(31px,3.6vw,46px); font-weight:900; letter-spacing:-.035em; max-width:23ch}
+.hero h1 u{
+  text-decoration:none; box-shadow:inset 0 -.13em 0 var(--accent);
+  padding-bottom:.02em;
+}
+.hero p{color:var(--text-2); font-size:17.5px; margin:24px 0 0; max-width:46ch}
+.cta{display:flex; flex-wrap:wrap; gap:11px; margin-top:34px}
+.btn{
+  font-family:var(--display); font-weight:700; font-size:14.5px; text-decoration:none;
+  padding:13px 24px; border-radius:999px; border:1px solid transparent; white-space:nowrap;
+  transition:transform .22s var(--ease), background-color .22s var(--ease), border-color .22s var(--ease), color .22s var(--ease);
+}
+.btn:active{transform:translateY(1px) scale(.985)}
+@media (max-width:480px){
+  .btn{padding:12px 18px; font-size:14px}
+  .eyebrow{letter-spacing:.1em; font-size:10.5px}
+}
+.btn-1{background:var(--accent); color:var(--on-accent)}
+.btn-1:hover{transform:translateY(-1px)}
+.btn-2{border-color:var(--line); color:var(--text-2)}
+.btn-2:hover{color:var(--text); border-color:var(--text-3); transform:translateY(-1px)}
+
+.hero-vis{position:relative}
+@media (min-width:1400px){
+  /* de bleed: op brede schermen loopt de visual voorbij de contentkolom,
+     zodat de rechterhelft niet leeg blijft staan. */
+  .hero-vis{margin-right:-100px}
+}
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr; padding-top:56px}
+  .hero p{max-width:52ch}
+}
+
+/* de vergelijking: twee panelen, gelijk formaat, ongelijke inhoud */
+.versus{display:grid; grid-template-columns:1fr 1.22fr; gap:14px}
+@media (max-width:620px){
+  .versus{grid-template-columns:1fr}
+  .vs-body{padding:16px 15px 14px}
+  .vs-plot{padding-top:12px}
+  .empty-plot{height:78px}
+}
+.vs-card{
+  border:1px solid var(--a-line); border-radius:var(--r); overflow:hidden;
+  background:var(--a-bg); color:var(--a-text);
+  display:flex; flex-direction:column;
+}
+.vs-head{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:12px 16px; border-bottom:1px solid var(--a-line);
+  font-family:var(--display); font-weight:700; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--a-mut);
+}
+.vs-head b{color:var(--a-text); font-weight:700; letter-spacing:.14em}
+.vs-body{padding:20px 16px 16px; flex:1; display:flex; flex-direction:column}
+.big{
+  font-family:var(--display); font-weight:700; letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums; font-size:clamp(23px,2.5vw,31px); line-height:1.05;
+  white-space:nowrap;
+}
+.sub{font-size:12.5px; color:var(--a-mut); margin-top:7px}
+.vs-plot{margin-top:auto; padding-top:18px}
+.empty-plot{
+  height:120px; border-radius:8px; border:1px dashed var(--a-line);
+  display:grid; place-items:center; position:relative;
+}
+.empty-plot span{font-size:12px; color:var(--a-dim)}
+.empty-plot i{
+  position:absolute; right:14px; top:26px; width:7px; height:7px; border-radius:99px;
+  background:var(--a-blue); box-shadow:0 0 0 4px var(--a-blue-2);
+}
+.axis{
+  display:flex; justify-content:space-between; margin-top:8px;
+  font-size:11px; color:var(--a-dim); font-variant-numeric:tabular-nums;
+}
+.demo{
+  margin-top:14px; font-size:11.5px; color:var(--text-3);
+}
+
+/* ============================================================
+   SECTIEKOPPEN  (gestapeld, nooit links-groot / rechts-klein)
+   ============================================================ */
+h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
+.lead{color:var(--text-2); margin:20px 0 0; max-width:62ch; font-size:17px}
 .lead + .lead{margin-top:14px}
 
-.split{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:28px; margin:34px 0 0}
-.card{padding:26px; border:1px solid var(--line); border-radius:var(--r-card);
-  background:linear-gradient(180deg,var(--surface),var(--surface-2))}
-.card h3{font-family:var(--display); font-weight:700; font-size:16px; letter-spacing:-.01em; margin:0}
-.card p{color:var(--text-2); font-size:14.8px; margin:10px 0 0}
+/* ============================================================
+   1 — VOLLE VERKLARING + BREDE UITSNEDE
+   ============================================================ */
+.statement{
+  font-family:var(--display); font-weight:700; font-size:clamp(22px,2.8vw,31px);
+  letter-spacing:-.025em; line-height:1.24; max-width:26ch; margin:0;
+}
+.statement em{font-style:normal; font-weight:700; box-shadow:inset 0 -.11em 0 var(--accent)}
+.answer{
+  display:grid; grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);
+  gap:clamp(28px,5vw,64px); align-items:center;
+}
+@media (max-width:980px){ .answer{grid-template-columns:1fr} }
 
-figure{margin:34px 0 0; padding:0}
-.frame img{width:100%; height:auto}
-.frame{border-radius:14px; overflow:hidden; border:1px solid var(--line);
-  background:#0B0B0F; box-shadow:var(--shadow)}
-figcaption{margin:16px 0 0; color:var(--text-2); font-size:14.8px; max-width:70ch}
-figcaption b{font-family:var(--display); font-weight:700; color:var(--text); font-size:14.8px}
+/* ============================================================
+   2 — ASYMMETRISCHE BENTO (3 cellen, 3 items)
+   ============================================================ */
+.bento{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:44px}
+.bento > .wide{grid-column:span 2}
+@media (max-width:860px){
+  .bento{grid-template-columns:1fr}
+  .bento > .wide{grid-column:auto}
+}
+.tile{
+  border:1px solid var(--line); border-radius:var(--r); padding:26px;
+  background:linear-gradient(180deg,var(--surface),var(--surface-2));
+  display:flex; flex-direction:column; gap:20px;
+}
+.tile > .txt{max-width:64ch}
+.tile h3{font-size:17.5px; font-weight:700; letter-spacing:-.015em}
+.tile p{margin:0; color:var(--text-2); font-size:14.8px; line-height:1.6}
+.tile .ui{margin-top:auto}
+.tile.wide .ui{margin-top:0}
 
+/* ============================================================
+   3 — TABS: zeven pagina's, één leesbare uitsnede per keer
+   ============================================================ */
+.tabs{
+  display:flex; gap:7px; margin-top:38px; overflow-x:auto; padding-bottom:4px;
+  scroll-snap-type:x proximity; scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  font-family:var(--display); font-weight:700; font-size:13.5px; white-space:nowrap;
+  padding:9px 16px; border-radius:999px; border:1px solid var(--line);
+  background:transparent; color:var(--text-2); cursor:pointer; scroll-snap-align:start;
+  transition:color .2s var(--ease), border-color .2s var(--ease), background-color .2s var(--ease);
+}
+.tab:hover{color:var(--text); border-color:var(--text-3)}
+.tab[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.tab:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
 
-.facts{list-style:none; margin:30px 0 0; padding:0; display:grid; gap:12px}
-.facts li{display:grid; grid-template-columns:132px 1fr; gap:16px; align-items:baseline; font-size:15px}
-.facts b{font-family:var(--display); font-weight:700; font-size:11.5px; letter-spacing:.09em;
-  text-transform:uppercase; color:var(--text-3)}
-.facts span{color:var(--text-2)}
-@media (max-width:560px){ .facts li{grid-template-columns:1fr; gap:2px} }
+.panels{margin-top:26px}
+.panel{display:none}
+.panel[data-on]{display:block}
+@media (prefers-reduced-motion:no-preference){
+  .panel[data-on] > *{animation:fade .45s var(--ease) both}
+}
+@keyframes fade{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
 
-.note{margin:34px 0 0; padding:22px 24px; border:1px solid var(--line); border-radius:var(--r-card);
-  background:var(--surface); color:var(--text-2); font-size:14.8px}
-.note strong{color:var(--text)}
-.note p{margin:0}
-.note p + p{margin-top:12px}
+/* De onderbouwing staat los van de tabs: alle zeven blijven zichtbaar,
+   alleen de uitsnede erboven wisselt. Zo woont de inhoudelijke tekst niet
+   in een display:none-paneel, en blijft hij ook zichtbaar voor een lezer
+   die nooit op een tab klikt. */
+.explainers{
+  margin-top:56px; padding-top:8px; border-top:1px solid var(--line);
+  display:grid; grid-template-columns:1fr 1fr; gap:clamp(24px,4vw,48px) clamp(28px,5vw,64px);
+}
+@media (max-width:860px){ .explainers{grid-template-columns:1fr} }
+.explainer{padding-top:28px}
+.explainer h3{font-size:16.5px; font-weight:700; letter-spacing:-.01em; margin-bottom:10px}
+.explainer p{margin:0; color:var(--text-2); font-size:15px; line-height:1.62}
+.explainer p + p{margin-top:13px}
 
-footer{margin-top:96px; border-top:1px solid var(--line); padding:28px 0 56px}
-footer .wrap{display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between;
-  color:var(--text-3); font-size:14px}
-footer a{color:var(--text-2)}
+/* ============================================================
+   4 — TWEEKOLOMS DEFINITIEROOSTER (gegroepeerd, spaarzame lijnen)
+   ============================================================ */
+.facts{
+  display:grid; grid-template-columns:1fr 1fr; gap:2px 48px; margin:40px 0 0; padding:0; list-style:none;
+  border-top:1px solid var(--line);
+}
+@media (max-width:760px){ .facts{grid-template-columns:1fr} }
+.facts > div{padding:22px 0 24px}
+.facts dt{
+  font-family:var(--display); font-weight:700; font-size:11px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--text-3); margin-bottom:8px;
+}
+.facts dd{margin:0; color:var(--text-2); font-size:14.8px; line-height:1.58}
+
+/* ============================================================
+   5 — INGESLOTEN PROZA (wat het niet is)
+   ============================================================ */
+.honest{
+  border:1px solid var(--line); border-radius:20px; background:var(--surface);
+  padding:clamp(30px,4.5vw,54px);
+}
+.honest h2{font-size:clamp(24px,3vw,34px)}
+.honest-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:clamp(24px,4vw,54px); margin-top:34px;
+}
+@media (max-width:820px){ .honest-grid{grid-template-columns:1fr} }
+.honest-grid h3{
+  font-family:var(--display); font-weight:700; font-size:14.5px; margin-bottom:9px;
+}
+.honest-grid p{margin:0; color:var(--text-2); font-size:14.8px; line-height:1.6}
+.honest-item + .honest-item{margin-top:28px}
+
+/* ============================================================
+   6 — SLOT
+   ============================================================ */
+.end{text-align:left; max-width:52ch}
+.end h2{font-size:clamp(30px,4vw,46px)}
+.end p{color:var(--text-2); margin:20px 0 0}
+.steps{
+  margin:24px 0 0; color:var(--text-2); font-size:15.5px;
+}
+.steps b{color:var(--text); font-family:var(--display); font-weight:700}
+
+/* Demoknop: drie toestanden, want zonder extensie kan hij niets openen. */
+.btn[data-state="checking"]{
+  opacity:.55; pointer-events:none;
+  background:var(--surface-2); color:var(--text-2); border-color:var(--line);
+}
+.btn[data-state="absent"]{background:transparent; border-color:var(--line); color:var(--text-2)}
+.btn[data-state="absent"]:hover{color:var(--text); border-color:var(--text-3)}
+.btn[data-state="ready"]{background:var(--accent); color:var(--on-accent)}
+.btn[data-state="error"]{background:transparent; border-color:var(--line); color:var(--text-2)}
+.demostate{
+  margin:14px 0 0; font-size:13.5px; color:var(--text-3); max-width:52ch;
+  min-height:1.4em;
+}
+.demostate b{color:var(--text-2); font-weight:600}
+
+footer{
+  margin-top:120px; border-top:1px solid var(--line); padding:28px 0 44px;
+  display:flex; flex-wrap:wrap; gap:14px 28px; justify-content:space-between; align-items:baseline;
+  color:var(--text-3); font-size:13.5px;
+}
+.ver{
+  font-family:var(--mono); font-size:12.5px; color:var(--text-3);
+  font-variant-numeric:tabular-nums;
+}
+.ver b{color:var(--text-2); font-weight:500}
+.flinks{display:flex; gap:20px}
+footer a{text-decoration:none; color:var(--text-2)}
+footer a:hover{color:var(--text)}
+
+/* ============================================================
+   REVEAL  (entree op scroll, verder niets)
+   ============================================================ */
+@media (prefers-reduced-motion:no-preference){
+  .rv{opacity:0; transform:translateY(18px); transition:opacity .7s var(--ease), transform .7s var(--ease)}
+  .rv.in{opacity:1; transform:none}
+}
+
+/* ============================================================
+   ===========  GERECONSTRUEERDE PRODUCT-UI  ==================
+   Geen screenshot: echte HTML op 1:1, dus leesbaar op elk formaat.
+   Kleuren komen uit de extensie zelf en draaien niet mee met het
+   paginathema, precies zoals een schermafdruk ook niet meekleurt.
+   ============================================================ */
+.ui{
+  border:1px solid var(--a-line); border-radius:var(--r); overflow:hidden;
+  background:var(--a-bg); color:var(--a-text);
+  font-size:13.5px; line-height:1.5;
+}
+.ui-bar{
+  display:flex; align-items:center; gap:10px; padding:11px 15px;
+  border-bottom:1px solid var(--a-line); background:var(--a-panel);
+}
+.ui-bar .tick{width:3px; height:15px; border-radius:2px; background:var(--a-amber)}
+.ui-bar h4{
+  margin:0; font-family:var(--display); font-weight:700; font-size:14px;
+  letter-spacing:-.01em; color:var(--a-text);
+}
+.ui-bar .meta{margin-left:auto; font-size:11px; color:var(--a-dim); font-variant-numeric:tabular-nums; text-align:right}
+.ui-in{padding:18px 16px}
+
+/* periode-rail */
+.range{
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  padding:8px; border:1px solid var(--a-line); border-radius:10px; background:var(--a-panel);
+}
+.range .lbl{font-size:11.5px; color:var(--a-mut); padding:0 6px}
+.range button{
+  font:inherit; font-weight:600; font-size:12.5px; color:var(--a-text);
+  background:transparent; border:0; border-radius:999px; padding:6px 13px; cursor:pointer;
+  transition:background-color .18s var(--ease), color .18s var(--ease);
+}
+.range button:hover{background:var(--a-panel-2)}
+.range button[aria-pressed="true"]{background:var(--a-panel-2); box-shadow:inset 0 0 0 1px var(--a-line)}
+.range .sep{margin-left:auto; font-size:11.5px; color:var(--a-mut); padding-right:6px}
+.period{
+  font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--a-dim);
+  font-variant-numeric:tabular-nums; margin-bottom:10px;
+}
+
+/* kpi-rail */
+.kpis{display:grid; grid-template-columns:1.7fr 1fr 1fr; gap:22px; align-items:start}
+.kpis.pack{grid-template-columns:repeat(2,minmax(0,230px)); gap:40px}
+.kpis.even{grid-template-columns:repeat(3,minmax(0,1fr))}
+.kpis.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:640px){ .kpis, .kpis.four{grid-template-columns:1fr 1fr} }
+.kpi .k{
+  display:flex; align-items:center; gap:7px;
+  font-family:var(--display); font-weight:700; font-size:10.5px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--a-mut); margin-bottom:9px;
+}
+.kpi .k::before{content:""; width:5px; height:5px; background:var(--a-dim); border-radius:1px}
+.info{
+  margin-left:auto; width:15px; height:15px; border-radius:99px; border:1px solid var(--a-line);
+  color:var(--a-mut); font-size:9.5px; font-style:italic; display:grid; place-items:center;
+  cursor:help; flex:none;
+}
+.kpi .v{
+  font-family:var(--display); font-weight:700; letter-spacing:-.028em;
+  font-variant-numeric:tabular-nums; line-height:1.02; white-space:nowrap;
+}
+.kpi.lg .v{font-size:clamp(25px,2.7vw,36px)}
+.kpi .v.sm{font-size:20px}
+.kpi .n{font-size:11.5px; color:var(--a-mut); margin-top:7px}
+.pos{color:var(--a-blue)} .neg{color:var(--a-pink)}
+
+/* grafiek */
+.chart{margin-top:20px; border-top:1px solid var(--a-line); padding-top:16px}
+.chart-h{
+  display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--a-text);
+  font-weight:600; margin-bottom:10px;
+}
+.chart svg{width:100%; height:auto}
+.legend{display:flex; gap:16px; margin-top:10px; font-size:11.5px; color:var(--a-mut); flex-wrap:wrap}
+.legend i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px; vertical-align:-1px}
+.note{
+  margin-top:12px; font-size:11px; color:var(--a-dim); line-height:1.45;
+}
+
+/* controlerij (outlook) */
+.ctrl{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--a-mut)}
+.ctrl .grp{display:flex; gap:4px; padding:3px; border:1px solid var(--a-line); border-radius:8px; background:var(--a-panel)}
+.ctrl .grp button{
+  font:inherit; font-weight:600; color:var(--a-text); background:transparent; border:0;
+  border-radius:6px; padding:5px 10px; cursor:pointer;
+}
+.ctrl .grp button[aria-pressed="true"]{background:var(--a-panel-2)}
+.ctrl label{display:inline-flex; align-items:center; gap:6px}
+
+/* splitbalk-rijen (holdings) */
+.rows{display:grid}
+.row{
+  display:grid; grid-template-columns:96px 88px minmax(140px,1fr) 96px;
+  gap:16px; align-items:center; padding:13px 0;
+}
+.row + .row{border-top:1px solid var(--a-line)}
+@media (max-width:700px){
+  .row{grid-template-columns:1fr 1fr; row-gap:8px}
+  .row .barcell{grid-column:1 / -1}
+}
+.tickr{font-weight:600; font-size:12.5px}
+.tickr small{display:block; color:var(--a-dim); font-weight:400; font-size:11px}
+.num{font-variant-numeric:tabular-nums; font-size:13px; text-align:right}
+.bar{height:6px; border-radius:99px; overflow:hidden; display:flex; background:var(--a-panel-2)}
+.bar .paid{background:var(--a-dim)}
+.bar .grown{background:var(--a-blue)}
+.bar .lost{background:var(--a-pink)}
+.barcell small{display:block; margin-top:7px; font-size:11px; color:var(--a-mut); font-variant-numeric:tabular-nums}
+
+/* jaartabel (performance) */
+.yeartable{display:grid; margin-top:18px; border-top:1px solid var(--a-line); padding-top:6px}
+.yearrow{display:grid; grid-template-columns:56px 1fr 90px 90px; gap:10px; padding:9px 0; align-items:baseline}
+.yearrow + .yearrow{border-top:1px solid var(--a-line)}
+.yearrow .yr{font-weight:700; font-size:12.5px}
+.yearrow .lbl{font-size:11px; color:var(--a-dim)}
+.yearrow .num{text-align:right; font-size:12.5px}
+
+/* staafjes (performance) */
+.bars{display:flex; align-items:flex-end; gap:3px; height:104px; margin-top:6px;
+  border-bottom:1px solid var(--a-line); padding-bottom:1px}
+.bars span{flex:1; border-radius:2px 2px 0 0; background:var(--a-blue); opacity:.85}
+.bars span.d{background:var(--a-pink)}
+
+/* in / uit (income) */
+.io{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.io.four{grid-template-columns:repeat(4,1fr)}
+@media (max-width:700px){ .io.four{grid-template-columns:1fr 1fr} }
+.io > div{border:1px solid var(--a-line); border-radius:10px; padding:15px; background:var(--a-panel)}
+.io .k{font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--a-mut); font-weight:700; font-family:var(--display)}
+.io .v{font-family:var(--display); font-weight:700; font-size:22px; margin-top:8px; font-variant-numeric:tabular-nums}
+.io .n{font-size:11.5px; color:var(--a-dim); margin-top:6px}
+
+/* waarschuwingsbalk (outlook / notices) */
+.warn{
+  display:flex; gap:11px; align-items:flex-start;
+  border:1px solid rgba(232,150,74,.35); background:rgba(232,150,74,.08);
+  border-radius:10px; padding:13px 15px; font-size:12.5px; color:var(--a-text);
+}
+.warn.red{border-color:rgba(242,116,140,.4); background:rgba(242,116,140,.09)}
+.warn b{display:block; font-family:var(--display); font-weight:700; font-size:12.5px; margin-bottom:3px}
+.warn p{margin:0; color:var(--a-mut); font-size:12px; line-height:1.5}
+.warn .dotbar{width:3px; align-self:stretch; border-radius:2px; background:var(--a-amber); flex:none}
+.warn.red .dotbar{background:var(--a-pink)}
+
+/* severity-chips */
+.chips{display:flex; gap:7px; flex-wrap:wrap}
+.chip{
+  font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px;
+  border:1px solid var(--a-line); color:var(--a-mut);
+}
+.chip.note{border-color:rgba(91,141,239,.45); color:var(--a-blue)}
+.chip.ok{border-color:rgba(99,192,138,.35); color:var(--a-green)}
+
+/* bedragen uit */
+.masked{
+  display:inline-block; border-radius:4px; background:var(--a-panel-2);
+  color:var(--a-dim); padding:0 8px; font-variant-numeric:tabular-nums;
+}
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <header class="top">
-    <a class="mark" href="https://prulwerk.nl/">prulwerk<span>.nl</span></a>
-    <a class="ghostlink" href="https://github.com/SirSquirell/Claudiclaude" rel="noopener">Broncode op GitHub</a>
+<div class="shell">
+  <nav class="nav">
+    <a class="mark" href="#">prulwerk<i>.nl</i></a>
+    <div class="nav-r">
+      <a class="pill" href="#pages">De pagina's</a>
+      <a class="pill" href="#install">Zelf proberen</a>
+      <a class="pill" href="#repo">Broncode</a>
+    </div>
+  </nav>
+</div>
+
+<!-- ============================================================
+     HERO  —  de vergelijking is het argument
+     ============================================================ -->
+<div class="shell">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Asteria · portefeuillehistorie voor DEGIRO</p>
+      <h1>Wat je rekening waard was, <u>elke dag</u>.</h1>
+      <p>Asteria rekent uit je eigen transacties en slotkoersen terug wat je portefeuille op elke dag waard was, iets wat DEGIRO's eigen interface niet laat zien.</p>
+      <div class="cta">
+        <a class="btn btn-1" href="#repo">Naar de repo</a>
+        <a class="btn btn-2" href="#pages">Bekijk de pagina's</a>
+      </div>
+    </div>
+
+    <div class="hero-vis">
+      <div class="versus">
+        <div class="vs-card">
+          <div class="vs-head"><span>Bij <b>DEGIRO</b></span></div>
+          <div class="vs-body">
+            <div class="big">€ 121.303,57</div>
+            <div class="sub">vandaag</div>
+            <div class="vs-plot">
+              <div class="empty-plot"><span>geen verloop</span><i></i></div>
+              <div class="axis"><span>&nbsp;</span><span>vandaag</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-card">
+          <div class="vs-head"><span>Met <b>Asteria</b></span><span>2.053 dagen</span></div>
+          <div class="vs-body">
+            <div class="big">€ 121.303,57</div>
+            <div class="sub">waarvan € 84.800,00 ingelegd</div>
+            <div class="vs-plot">
+              <svg viewBox="0 0 640 132" role="img" aria-label="Portefeuillewaarde van januari 2021 tot augustus 2026, van ongeveer 8.000 euro naar 121.303 euro.">
+                <defs>
+                  <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#5B8DEF" stop-opacity=".30"/>
+                    <stop offset="1" stop-color="#5B8DEF" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <g stroke="#242C38" stroke-width="1">
+                  <line x1="0" y1="34" x2="640" y2="34"/>
+                  <line x1="0" y1="68" x2="640" y2="68"/>
+                  <line x1="0" y1="102" x2="640" y2="102"/>
+                </g>
+                <path fill="url(#g1)" d="M4,116 L60,113 L104,108 L148,110 L186,104 L214,100 L232,74 L262,69 L300,60 L332,55 L358,63 L392,48 L424,41 L456,36 L486,44 L520,29 L556,24 L592,19 L636,14 L636,124 L4,124 Z"/>
+                <path fill="none" stroke="#5B8DEF" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"
+                  d="M4,116 L60,113 L104,108 L148,110 L186,104 L214,100 L232,74 L262,69 L300,60 L332,55 L358,63 L392,48 L424,41 L456,36 L486,44 L520,29 L556,24 L592,19 L636,14"/>
+                <g fill="#5B8DEF" opacity=".7">
+                  <path d="M40,124 l4,-6 l4,6 Z"/><path d="M120,124 l4,-6 l4,6 Z"/><path d="M200,124 l4,-6 l4,6 Z"/>
+                  <path d="M280,124 l4,-6 l4,6 Z"/><path d="M360,124 l4,-6 l4,6 Z"/><path d="M440,124 l4,-6 l4,6 Z"/>
+                  <path d="M520,124 l4,-6 l4,6 Z"/><path d="M600,124 l4,-6 l4,6 Z"/>
+                </g>
+              </svg>
+              <div class="axis"><span>jan 21</span><span>sep 22</span><span>jul 23</span><span>mei 24</span><span>aug 26</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="demo">Alle cijfers op deze pagina komen uit de demomodus, gedraaid en rechtstreeks overgenomen, niet door mij verzonnen.</p>
+    </div>
   </header>
 </div>
 
-<main>
-  <div class="wrap">
-    <div class="hero">
-      <p class="eyebrow">Asteria · Chrome-extensie</p>
-      <h1>Wat je rekening waard was, <em>elke dag</em>.</h1>
-      <p>DEGIRO laat je zien wat je portefeuille vandaag waard is. Niet wat hij gisteren waard
-         was, of in maart 2022, of de dag voordat je die ene positie kocht. Die grafiek bestaat
-         niet in hun interface. Asteria bouwt hem terug uit je eigen transacties, cashmutaties
-         en dagelijkse slotkoersen.</p>
-      <div class="actions">
-        <a class="btn btn-primary" href="https://github.com/SirSquirell/Claudiclaude" rel="noopener">Naar de repo</a>
-        <a class="btn btn-ghost" href="#hoe">Hoe het werkt</a>
+<!-- ============================================================
+     1 — DE VRAAG DIE JE NIET KUNT STELLEN
+     ============================================================ -->
+<section class="band">
+  <div class="shell">
+    <div class="answer rv">
+      <div>
+        <p class="statement">Komt die <em>+43%</em> uit je keuzes, of uit het geld dat je bent blijven inleggen?</p>
+        <p class="lead" style="margin-top:26px">Een broker weet precies wat je bezit, maar bewaart geen beeld van hoe je daar bent gekomen. Je ziet een stand, geen verloop.</p>
+        <p class="lead">Asteria splitst per positie de waarde in wat je hebt ingelegd en wat er bij is gekomen. Een positie die is verdubbeld en een positie waar je twee keer zoveel in hebt gestopt zien er in een gewone tabel hetzelfde uit.</p>
+      </div>
+
+      <div class="ui" aria-label="Uitsnede: holdings met splitbalk, echte demodata">
+        <div class="ui-bar"><span class="tick"></span><h4>Holdings</h4><span class="meta">paid in vs grown</span></div>
+        <div class="ui-in">
+          <div class="rows">
+            <div class="row">
+              <div class="tickr">BESI<small>BE Semiconductor</small></div>
+              <div class="num">€ 18.360,00</div>
+              <div class="barcell">
+                <div class="bar"><i class="grown" style="flex:100"></i></div>
+                <small>alles groei, er kwam meer uit dan er in ging</small>
+              </div>
+              <div class="num pos">+189,81%</div>
+            </div>
+            <div class="row">
+              <div class="tickr">ASML<small>ASML Holding</small></div>
+              <div class="num">€ 11.583,60</div>
+              <div class="barcell">
+                <div class="bar"><i class="paid" style="flex:34"></i><i class="grown" style="flex:66"></i></div>
+                <small>34% ingelegd · 66% gegroeid</small>
+              </div>
+              <div class="num pos">+59,31%</div>
+            </div>
+            <div class="row">
+              <div class="tickr">ARGX<small>argenx SE</small></div>
+              <div class="num">€ 15.490,23</div>
+              <div class="barcell">
+                <div class="bar"><i class="paid" style="flex:65"></i><i class="grown" style="flex:35"></i></div>
+                <small>65% ingelegd · 35% gegroeid</small>
+              </div>
+              <div class="num pos">+53,21%</div>
+            </div>
+            <div class="row">
+              <div class="tickr">IWDA<small>iShares Core World</small></div>
+              <div class="num">€ 7.267,26</div>
+              <div class="barcell">
+                <div class="bar"><i class="paid" style="flex:98"></i><i class="lost" style="flex:2"></i></div>
+                <small>2% van wat je erin stopte is verdwenen</small>
+              </div>
+              <div class="num neg">-2,06%</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</section>
 
-  <div class="wrap">
-    <figure>
-      <div class="frame"><img src="asteria-site/shots/overview.webp" width="1440" height="1293"
-        alt="Overzichtspagina van Asteria met totale waarde, ingelegd geld, resultaat en een waardeverloop over vijf jaar." loading="eager"></div>
-      <figcaption><b>Overview.</b> Eén hoofdgetal, drie steuncijfers ernaast, de rest achter
-        <i>Alle cijfers</i>. Negentien getallen in één raster is een muur die niemand leest.
-        Onderaan de rail staan drie feiten over de data in plaats van over het geld: wanneer er
-        voor het laatst gesynchroniseerd is, of het tot op de cent klopt, en hoeveel van de
-        historie gemeten is in plaats van geschat.</figcaption>
-    </figure>
-  </div>
+<!-- ============================================================
+     2 — HOE ER GEMETEN WORDT  (bento 3 cellen, 3 items)
+     ============================================================ -->
+<section class="band">
+  <div class="shell">
+    <div class="rv">
+      <h2>Hoe er gemeten wordt</h2>
+      <p class="lead">Elk getal krijgt een periode, een anker en een voorbehoud. Anders is een uitsnede van een kwartaal net zo goed een verdubbeling.</p>
+    </div>
 
-  <section id="hoe">
-    <div class="wrap">
-      <h2>Het probleem</h2>
-      <p class="lead">Een broker weet precies wat je bezit, maar bewaart geen beeld van hoe je
-        daar bent gekomen. Je ziet een stand, geen verloop. Wil je weten of die +40% uit je
-        keuzes komt of uit het geld dat je bent blijven inleggen, dan is er niets om naar te
-        kijken.</p>
-      <p class="lead">Asteria reconstrueert per dag. Het rekent terug wat elke positie op elke
-        dag waard was, telt het cash erbij, en controleert de uitkomst tegen het totaal dat
-        DEGIRO zelf noemt. Klopt dat niet tot op de cent, dan staat dat er.</p>
-
-      <div class="split">
-        <div class="card">
-          <h3>Periodes herberekenen</h3>
-          <p>Kies 3M en elk cijfer eronder is over die drie maanden gemeten, niet uit een
-             jaartotaal gesneden. Geankerd op de waarde van de dag ervoor, zodat de eerste dag
-             een echte beweging is, en dag op dag doorgerekend, zodat een storting binnen de
-             periode het rendement niet mooier maakt.</p>
+    <div class="bento rv">
+      <div class="tile wide">
+        <div class="txt">
+          <h3>Periodes worden herberekend</h3>
+          <p>Kies 3M en elk cijfer eronder is over die drie maanden gemeten, niet uit een jaartotaal gesneden. Geankerd op de waarde van de dag ervoor, zodat de eerste dag een echte beweging is, en dag op dag doorgerekend, zodat een storting binnen de periode het rendement niet mooier maakt.</p>
         </div>
-        <div class="card">
-          <h3>Elk getal heeft een periode</h3>
-          <p>Boven de cijfers staat één regel die de periode in woorden en in exacte datums
-             noemt. En begint een as niet op nul, dan staat dat onder de grafiek. Een uitsnede
-             van een kwartaal die op een verdubbeling lijkt is de oudste truc die er is.</p>
+        <div class="ui">
+          <div class="ui-in">
+            <p class="period">Whole history · 2021-01-04 → 2026-08-18</p>
+            <div class="range" role="group" aria-label="Periode">
+              <span class="lbl">Range</span>
+              <button type="button" aria-pressed="false">1M</button>
+              <button type="button" aria-pressed="false">3M</button>
+              <button type="button" aria-pressed="false">6M</button>
+              <button type="button" aria-pressed="false">YTD</button>
+              <button type="button" aria-pressed="false">1Y</button>
+              <button type="button" aria-pressed="true">ALL</button>
+              <span class="sep">per maand · auto</span>
+            </div>
+            <div class="kpis pack" style="margin-top:20px">
+              <div class="kpi">
+                <div class="k">Resultaat <span class="info" title="Wat de waarde is veranderd, los van stortingen en opnames.">i</span></div>
+                <div class="v sm pos">+€ 36.503,57</div>
+                <div class="n">+43,05% van wat je hebt ingelegd, hele historie</div>
+              </div>
+              <div class="kpi">
+                <div class="k">Diepste dal <span class="info" title="De grootste val van top naar bodem binnen de gekozen periode.">i</span></div>
+                <div class="v sm neg">-€ 14.472,99</div>
+                <div class="n">-15,04% · 11 feb 2025 → 22 aug 2025</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card">
+      </div>
+
+      <div class="tile">
+        <div class="txt">
+          <h3>Een as die niet op nul begint, zegt dat</h3>
+          <p>Boven de cijfers staat één regel met de periode in woorden en in exacte datums. Begint de as niet op nul, dan staat het eronder.</p>
+        </div>
+        <div class="ui">
+          <div class="ui-in" style="padding:14px 15px">
+            <div class="chart" style="margin:0; border:0; padding:0">
+              <div class="chart-h">Resultaat per maand</div>
+              <div class="bars" aria-hidden="true">
+                <span style="height:22%"></span><span class="d" style="height:38%"></span><span style="height:54%"></span>
+                <span style="height:31%"></span><span class="d" style="height:66%"></span><span style="height:44%"></span>
+                <span style="height:78%"></span><span class="d" style="height:24%"></span><span style="height:58%"></span>
+                <span style="height:91%"></span><span style="height:47%"></span><span class="d" style="height:35%"></span>
+                <span style="height:69%"></span><span style="height:100%"></span><span class="d" style="height:29%"></span>
+                <span style="height:62%"></span><span style="height:83%"></span><span style="height:41%"></span>
+              </div>
+              <p class="note">As begint niet op nul. Onderkant is -€ 4.000.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tile">
+        <div class="txt">
           <h3>Wat een cijfer niet zegt</h3>
-          <p>Bij elk getal een <i>i</i> die uitlegt wat het betekent en, nuttiger, wat het niet
-             betekent. Dat "betaalde kosten" niet meerekent wat een marginpositie kost. Dat een
-             storting nooit winst is. Dat de grootste stijger een positie is en geen transactie.</p>
+          <p>Bij elk getal een i die uitlegt wat het betekent en, nuttiger, wat het niet betekent. Dat kosten van een marginpositie niet onder Fees paid vallen, maar apart als Interest staan. Dat een storting nooit winst is.</p>
+        </div>
+        <div class="ui">
+          <div class="ui-in" style="padding:14px 15px">
+            <div class="kpi">
+              <div class="k">Dividend received <span class="info" title="Netto ontvangen, na de bronbelasting. Het ingehouden bedrag staat er los naast.">i</span></div>
+              <div class="v sm">€ 2.652,40</div>
+              <div class="n">€ 468,10 ingehouden, hele historie</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </section>
-
-  <section>
-    <div class="wrap">
-      <h2>De zeven pagina's</h2>
-      <p class="lead">Overview, Performance, Composition, Income &amp; cost, Holdings, Outlook
-        en Notices. Hieronder een deel ervan.</p>
-
-      <figure>
-        <div class="frame"><img src="asteria-site/shots/performance.webp" width="1172" height="386"
-          alt="Twee grafieken naast elkaar: resultaat per periode als staven per maand, en het cumulatieve resultaat als lijn over vijf jaar." loading="lazy"></div>
-        <figcaption><b>Performance.</b> Resultaat per periode naast het cumulatieve verloop,
-          met daaronder jaar voor jaar. Een jaarrendement ketent de dagrendementen, dus een
-          storting binnenin vertekent het niet.</figcaption>
-      </figure>
-      <figure>
-        <div class="frame"><img src="asteria-site/shots/composition.webp" width="1172" height="355"
-          alt="Gestapelde vlakgrafiek van de portefeuilleverdeling over vijf jaar, met per fonds een eigen kleur en cash bovenop." loading="lazy"></div>
-        <figcaption><b>Composition.</b> Waar het geld in zit en hoe die verdeling verschoven
-          is, in plaats van alleen de stand van nu.</figcaption>
-      </figure>
-      <figure>
-        <div class="frame"><img src="asteria-site/shots/income.webp" width="1172" height="373"
-          alt="Staafgrafiek van het ontvangen dividend per maand, met de ingehouden bronbelasting eronder gestapeld." loading="lazy"></div>
-        <figcaption><b>Income &amp; cost.</b> Wat er binnenkwam en wat het kostte, apart van
-          het koersresultaat. Een dividend dat je herbelegt is geen rendement op je keuze en
-          staat dus niet in dezelfde kolom.</figcaption>
-      </figure>
-
-      <figure>
-        <div class="frame"><img src="asteria-site/shots/holdings.webp" width="1172" height="799"
-          alt="Holdings-tabel met per positie de gemiddelde aankoopprijs, waarde, verhouding inleg tegen groei, resultaat, dividend en aandeel in de portefeuille." loading="lazy"></div>
-        <figcaption><b>Holdings.</b> Per positie de gemiddelde aankoopprijs, de waarde, het
-          resultaat, het dividend en het aandeel in het totaal. De balk in het midden splitst
-          de waarde in wat je hebt ingelegd en wat er bij is gekomen, want een positie die is
-          verdubbeld en een positie waar je twee keer zoveel in hebt gestopt zien er in een
-          gewone tabel hetzelfde uit.</figcaption>
-      </figure>
-
-      <figure>
-        <div class="frame"><img src="asteria-site/shots/hidden.webp" width="1208" height="325"
-          alt="De tegelrij bovenaan de pagina met elk bedrag vervangen door drie stippen, terwijl de percentages blijven staan." loading="lazy"></div>
-        <figcaption><b>Bedragen uit.</b> Het oogje in de bovenbalk haalt elk bedrag weg door
-          vervanging, niet door vervaging: het getal bereikt de pagina niet en is niet uit de
-          broncode of met kopiëren terug te halen. Percentages blijven, en dat is het punt.
-          Je kunt +340% zeggen zonder te zeggen waarover. De geldas van de grafieken gaat mee
-          weg in plaats van het masker langs de zijkant te herhalen.</figcaption>
-      </figure>
-      <figure>
-        <div class="frame"><img src="asteria-site/shots/share.webp" width="894" height="497"
-          alt="Deelvenster met een gegenereerde kaart voor één positie, keuze uit vormen, licht of donker thema en bedragen aan of uit." loading="lazy"></div>
-        <figcaption><b>Delen.</b> Elke positie kan als kaart, getekend in plaats van
-          gescreenshot. Vijf verhoudingen, licht of donker, bedragen standaard uit, en een
-          naam die je kiest of weglaat. De kaart draagt het controleresultaat mee en zegt
-          "niet gecontroleerd" als er niets was om tegen te controleren. Geen badge en geen
-          signatuur: elk merkje dat dit kan zetten, kan iedereen die de kaart heeft ook
-          zetten, en een na te maken keurmerk is erger dan geen.</figcaption>
-      </figure>
-
-      <figure>
-        <div class="frame"><img src="asteria-site/shots/outlook.webp" width="1172" height="518"
-          alt="Scenariokaart met een keuze voor horizon en maandinleg, en drie gestippelde projecties naast het werkelijke verloop." loading="lazy"></div>
-        <figcaption><b>Outlook.</b> De enige pagina die geen meting is, en die staat daarom
-          apart. Al het andere is teruggerekend uit wat er werkelijk gebeurd is en getoetst
-          tegen het totaal van DEGIRO. Een projectie is tegen niets te toetsen, dus staat het
-          voorbehoud boven de cijfers en komen de scenario's uit stukken die je eigen historie
-          echt bevat. Vijfenhalf jaar historie bevat één onafhankelijke periode van vijf jaar,
-          hoeveel overlappende vensters je er ook uit schuift. Onder de drie zegt het dat, en
-          noemt het zichzelf een voorbeeld. En waar het gemeten tempo iets is wat een markt niet
-          doet, wordt er geen grafiek getekend maar uitgelegd waarom niet.</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap">
-      <h2>Waar de data blijft</h2>
-      <p class="lead">Nergens. Er zit geen server achter en er is geen account om aan te maken.
-        Alles landt in de database van je eigen browser.</p>
-      <ul class="facts">
-        <li><b>Inloggen</b><span>Geen wachtwoord en geen API-sleutel. Het gebruikt de sessie die je eigen login al in de browser heeft gezet.</span></li>
-        <li><b>Alleen lezen</b><span>Het haalt je transacties, cashmutaties en koersen op. Het kan geen order plaatsen, wijzigen of intrekken.</span></li>
-        <li><b>Rustig aan</b><span>Eén verzoek per 1,1 seconde, met opzet. De eerste synchronisatie duurt daardoor een paar minuten.</span></li>
-        <li><b>Geen telemetrie</b><span>Geen analytics, geen crashrapportage. Dat is afgedwongen en niet beloofd: de extensie mag maar twee hosts benaderen en kan geen script van buiten laden.</span></li>
-        <li><b>Losknippen</b><span>Verbinding weggooien kan zonder de historie te verliezen. Elk cijfer blijft staan, bevroren op de laatste synchronisatie en op elk scherm gedateerd.</span></li>
-        <li><b>Bugmelden</b><span>Een bugrapport bevat codes, aantallen en verhoudingen. Geen bedragen, geen namen van instrumenten, geen rekeningnummer.</span></li>
-      </ul>
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap">
-      <h2>Wat het niet is</h2>
-      <div class="note">
-        <p><strong>Geen product van DEGIRO.</strong> Asteria is een persoonlijk project en staat
-          op geen enkele manier in verbinding met DEGIRO. Die naam staat hier alleen om te zeggen
-          waar het op aansluit. Geautomatiseerd je eigen rekening uitlezen kan botsen met hun
-          voorwaarden: alleen lezen, je eigen gegevens, uit je eigen ingelogde browser is de
-          mildste vorm daarvan, maar langzaam is niet hetzelfde als toegestaan. Ga daar zelf na
-          wat je ermee wil.</p>
-        <p><strong>Geen advies.</strong> Er staat hier geen aanbeveling om iets te kopen of te
-          verkopen. Het is een rekenmachine op je eigen verleden.</p>
-        <p><strong>Alle beelden op deze pagina zijn demo-data.</strong> De extensie heeft een
-          demomodus met gegenereerde cijfers, en die is gebruikt voor elke schermafdruk hier.
-          Geen enkel bedrag op deze pagina komt uit een echte rekening. Je ziet dat ook in de
-          regel onder de titel van elk beeld staan.</p>
-        <p><strong>Het gaat kapot.</strong> Er is geen openbare koppeling om op te bouwen, dus
-          de bron kan zonder aankondiging veranderen. Als een veld verdwijnt zegt de extensie
-          dat met een rode balk in plaats van stil met een nul verder te rekenen.</p>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap">
-      <h2>Zelf proberen</h2>
-      <p class="lead">Het is een Chrome-extensie die je zelf laadt: downloaden, uitpakken,
-        ontwikkelaarsmodus aan, map kiezen. Ongeveer twee minuten, geen terminal en geen Node.
-        In de repo staat een stap-voor-stap handleiding, en je kunt de demo met voorbeelddata
-        openen voordat je hem op je eigen rekening richt.</p>
-      <div class="actions">
-        <a class="btn btn-primary" href="https://github.com/SirSquirell/Claudiclaude" rel="noopener">Broncode en handleiding</a>
-        <a class="btn btn-ghost" href="https://github.com/SirSquirell/Claudiclaude/blob/main/docs/LIMITATIONS.md" rel="noopener">Wat het niet kan</a>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <span>asteria.prulwerk.nl</span>
-    <span>Meer werk op <a href="https://github.com/SirSquirell" rel="me noopener">github.com/SirSquirell</a></span>
   </div>
-</footer>
+</section>
 
+<!-- ============================================================
+     3 — DE ZEVEN PAGINA'S: tabs in plaats van een muur
+     ============================================================ -->
+<section class="band" id="pages">
+  <div class="shell">
+    <div class="rv">
+      <h2>Zeven pagina's, één ding per pagina, over je DEGIRO-rendement</h2>
+      <p class="lead">Overview, Performance, Composition, Income &amp; cost, Holdings, Outlook en Notices. Hieronder van elke pagina de uitsnede die het verschil maakt, op ware grootte en met de echte cijfers uit de demomodus.</p>
+    </div>
+
+    <div class="tabs rv" role="tablist" aria-label="Pagina's">
+      <button class="tab" role="tab" aria-selected="true"  aria-controls="p1" id="t1">Overview</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p2" id="t2">Performance</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p3" id="t3">Composition</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p4" id="t4">Income &amp; cost</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p5" id="t5">Holdings</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p6" id="t6">Outlook</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p7" id="t7">Notices</button>
+    </div>
+
+    <div class="panels">
+      <!-- Overview -->
+      <div class="panel" id="p1" role="tabpanel" aria-labelledby="t1" data-on>
+        <div class="ui">
+          <div class="ui-bar"><span class="tick"></span><h4>Portfolio history</h4><span class="meta">2021-01-04 → 2026-08-18 · 2.053 dagen</span></div>
+          <div class="ui-in">
+            <div class="kpis">
+              <div class="kpi lg">
+                <div class="k">Totale waarde <span class="info" title="Waarde van alle posities plus cash, per vandaag.">i</span></div>
+                <div class="v">€ 121.303,57</div>
+                <div class="n">per vandaag</div>
+              </div>
+              <div class="kpi">
+                <div class="k">Ingelegd <span class="info" title="Stortingen minus opnames, tot vandaag.">i</span></div>
+                <div class="v sm">€ 84.800,00</div>
+                <div class="n">stortingen minus opnames</div>
+              </div>
+              <div class="kpi">
+                <div class="k">Resultaat <span class="info" title="Waarde minus inleg. Niet hetzelfde als rendement.">i</span></div>
+                <div class="v sm pos">+€ 36.503,57</div>
+                <div class="n">+43,05%</div>
+              </div>
+            </div>
+            <div class="chart">
+              <div class="chart-h">Waarde inclusief cash</div>
+              <svg viewBox="0 0 640 120" role="img" aria-label="Verloop van de portefeuillewaarde inclusief cash, van ongeveer 8.000 naar 121.303 euro.">
+                <g stroke="#242C38" stroke-width="1">
+                  <line x1="0" y1="30" x2="640" y2="30"/><line x1="0" y1="60" x2="640" y2="60"/><line x1="0" y1="90" x2="640" y2="90"/>
+                </g>
+                <path fill="none" stroke="#5B8DEF" stroke-width="2" stroke-linejoin="round"
+                  d="M4,105 L60,102 L104,98 L148,100 L186,94 L214,90 L232,66 L262,62 L300,54 L332,49 L358,57 L392,43 L424,37 L456,32 L486,39 L520,26 L556,21 L592,17 L636,12"/>
+                <path fill="none" stroke="#7C8798" stroke-width="1.4" stroke-dasharray="4 4"
+                  d="M4,110 L104,106 L214,99 L300,88 L392,76 L486,62 L556,52 L636,44"/>
+              </svg>
+              <div class="legend">
+                <span><i style="background:#5B8DEF"></i>Waarde</span>
+                <span><i style="background:#7C8798"></i>Ingelegd</span>
+              </div>
+              <p class="note">Reconciles to the cent. 100,0% measured, 0 van de 2.053 dagen geschat.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance -->
+      <div class="panel" id="p2" role="tabpanel" aria-labelledby="t2">
+        <div class="ui">
+          <div class="ui-bar"><span class="tick"></span><h4>Performance</h4><span class="meta">per maand · geketend</span></div>
+          <div class="ui-in">
+            <div class="chart-h">Result per period</div>
+            <div class="bars" aria-hidden="true">
+              <span style="height:26%"></span><span class="d" style="height:41%"></span><span style="height:57%"></span>
+              <span style="height:34%"></span><span class="d" style="height:69%"></span><span style="height:47%"></span>
+              <span style="height:81%"></span><span class="d" style="height:27%"></span><span style="height:61%"></span>
+              <span style="height:94%"></span><span style="height:50%"></span><span class="d" style="height:38%"></span>
+              <span style="height:72%"></span><span style="height:100%"></span><span class="d" style="height:32%"></span>
+              <span style="height:65%"></span><span style="height:86%"></span><span style="height:44%"></span>
+            </div>
+            <div class="yeartable">
+              <div class="yearrow">
+                <span class="yr">2026</span><span class="lbl">€ 79.931,31 → € 121.303,57</span>
+                <span class="num pos">+€ 15.372,26</span><span class="num pos">+15,04%</span>
+              </div>
+              <div class="yearrow">
+                <span class="yr">2023</span><span class="lbl">€ 14.328,70 → € 46.199,48</span>
+                <span class="num pos">+€ 13.870,78</span><span class="num pos">+50,06%</span>
+              </div>
+              <div class="yearrow">
+                <span class="yr">2022</span><span class="lbl">€ 11.098,05 → € 14.328,70</span>
+                <span class="num neg">€ -1.269,35</span><span class="num neg">-11,13%</span>
+              </div>
+            </div>
+            <p class="note">Whole history, nooit de geselecteerde periode. Een jaarrendement ketent de dagrendementen. Een storting binnenin vertekent het niet.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Composition -->
+      <div class="panel" id="p3" role="tabpanel" aria-labelledby="t3">
+        <div class="ui">
+          <div class="ui-bar"><span class="tick"></span><h4>Composition</h4><span class="meta">zes grootste posities, de rest gebundeld</span></div>
+          <div class="ui-in">
+            <div class="kpis pack" style="margin-bottom:18px">
+              <div class="kpi">
+                <div class="k">Positions held</div>
+                <div class="v sm">11</div>
+                <div class="n">13 instruments ever held</div>
+              </div>
+              <div class="kpi">
+                <div class="k">Largest position</div>
+                <div class="v sm">15,1%</div>
+                <div class="n">BESI · of total value</div>
+              </div>
+            </div>
+            <div class="chart-h">What the portfolio is made of</div>
+            <svg viewBox="0 0 640 130" role="img" aria-label="Gestapelde dagelijkse waarde per positie: ASML, VWRL, BESI, SHELL, PROP, PRX, Other (7) en Cash, van januari 2021 tot augustus 2026.">
+              <g stroke="none">
+                <path fill="#5B8DEF" d="M4,121.4 90,118.7 180,115.2 270,111.2 360,107.7 450,104.6 540,102.0 636,99.8 L636,124 540,124 450,124 360,124 270,124 180,124 90,124 4,124 Z"/>
+                <path fill="#9C7CE0" d="M4,118.0 90,112.0 180,104.0 270,95.0 360,87.0 450,80.0 540,74.0 636,69.0 L636,99.8 540,102.0 450,104.6 360,107.7 270,111.2 180,115.2 90,118.7 4,121.4 Z"/>
+                <path fill="#3FBF9E" d="M4,115.6 90,107.2 180,96.0 270,83.4 360,72.2 450,62.4 540,54.0 636,47.0 L636,69.0 540,74.0 450,80.0 360,87.0 270,95.0 180,104.0 90,112.0 4,118.0 Z"/>
+                <path fill="#E8964A" d="M4,113.4 90,102.9 180,88.8 270,73.0 360,58.9 450,46.6 540,36.0 636,27.2 L636,47.0 540,54.0 450,62.4 360,72.2 270,83.4 180,96.0 90,107.2 4,115.6 Z"/>
+                <path fill="#C9A227" d="M4,112.6 90,101.4 180,86.6 270,69.8 360,55.0 450,42.0 540,31.0 636,21.6 L636,27.2 540,36.0 450,46.6 360,58.9 270,73.0 180,88.8 90,102.9 4,113.4 Z"/>
+                <path fill="#63C08A" d="M4,112.1 90,100.6 180,85.4 270,68.0 360,52.8 450,39.4 540,28.0 636,18.2 L636,21.6 540,31.0 450,42.0 360,55.0 270,69.8 180,86.6 90,101.4 4,112.6 Z"/>
+                <path fill="#F2748C" d="M4,111.0 90,99.0 180,83.0 270,64.5 360,48.5 450,34.5 540,22.5 636,13.0 L636,18.2 540,28.0 450,39.4 360,52.8 270,68.0 180,85.4 90,100.6 4,112.1 Z"/>
+                <path fill="#8B96A8" d="M4,110.0 90,97.5 180,80.5 270,61.0 360,44.0 450,30.0 540,18.5 636,10.0 L636,13.0 540,22.5 450,34.5 360,48.5 270,64.5 180,83.0 90,99.0 4,111.0 Z"/>
+              </g>
+            </svg>
+            <div class="legend">
+              <span><i style="background:#5B8DEF"></i>ASML</span>
+              <span><i style="background:#9C7CE0"></i>VWRL</span>
+              <span><i style="background:#3FBF9E"></i>BESI</span>
+              <span><i style="background:#E8964A"></i>SHELL</span>
+              <span><i style="background:#C9A227"></i>PROP</span>
+              <span><i style="background:#63C08A"></i>PRX</span>
+              <span><i style="background:#F2748C"></i>Other (7)</span>
+              <span><i style="background:#8B96A8"></i>Cash</span>
+            </div>
+            <p class="note">Gestapeld in euro's, niet in procenten. Een band die breder wordt kan een grotere positie zijn, of een portefeuille die als geheel is gegroeid. Kies een andere periode en de zes grootste worden opnieuw bepaald.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Income & cost -->
+      <div class="panel" id="p4" role="tabpanel" aria-labelledby="t4">
+        <div class="ui">
+          <div class="ui-bar"><span class="tick"></span><h4>Income &amp; cost</h4><span class="meta">apart van het koersresultaat</span></div>
+          <div class="ui-in">
+            <div class="io four">
+              <div>
+                <div class="k">Dividend received</div>
+                <div class="v pos">€ 2.652,40</div>
+                <div class="n">€ 468,10 ingehouden</div>
+              </div>
+              <div>
+                <div class="k">Fees paid</div>
+                <div class="v neg">€ 199,00</div>
+                <div class="n">transactie- en servicekosten</div>
+              </div>
+              <div>
+                <div class="k">Interest</div>
+                <div class="v pos">+€ 30,50</div>
+                <div class="n">margin- en cashrente</div>
+              </div>
+              <div>
+                <div class="k">Total cost</div>
+                <div class="v neg">€ 667,10</div>
+                <div class="n">fees, bronbelasting en rente</div>
+              </div>
+            </div>
+            <p class="note">Fees paid is alleen transactie- en servicekosten. Wat een marginpositie aan financiering kost staat apart onder Interest, en op een leveraged rekening is dat meestal de grootste van de twee.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Holdings -->
+      <div class="panel" id="p5" role="tabpanel" aria-labelledby="t5">
+        <div class="ui">
+          <div class="ui-bar"><span class="tick"></span><h4>Holdings</h4><span class="meta">bedragen uit</span></div>
+          <div class="ui-in">
+            <div class="rows">
+              <div class="row">
+                <div class="tickr">BESI<small>BE Semiconductor</small></div>
+                <div class="num"><span class="masked">·····</span></div>
+                <div class="barcell">
+                  <div class="bar"><i class="grown" style="flex:100"></i></div>
+                  <small>alles groei</small>
+                </div>
+                <div class="num pos">+189,81%</div>
+              </div>
+              <div class="row">
+                <div class="tickr">ASML<small>ASML Holding</small></div>
+                <div class="num"><span class="masked">·····</span></div>
+                <div class="barcell">
+                  <div class="bar"><i class="paid" style="flex:34"></i><i class="grown" style="flex:66"></i></div>
+                  <small>34% ingelegd · 66% gegroeid</small>
+                </div>
+                <div class="num pos">+59,31%</div>
+              </div>
+              <div class="row">
+                <div class="tickr">IWDA<small>iShares Core World</small></div>
+                <div class="num"><span class="masked">·····</span></div>
+                <div class="barcell">
+                  <div class="bar"><i class="paid" style="flex:98"></i><i class="lost" style="flex:2"></i></div>
+                  <small>2% van wat je erin stopte is verdwenen</small>
+                </div>
+                <div class="num neg">-2,06%</div>
+              </div>
+            </div>
+            <p class="note">Het bedrag bereikt de pagina niet en is niet uit de broncode of met kopiëren terug te halen. Percentages blijven, en dat is het punt. Je kunt +189% zeggen zonder te zeggen waarover.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Outlook -->
+      <div class="panel" id="p6" role="tabpanel" aria-labelledby="t6">
+        <div class="ui">
+          <div class="ui-bar"><span class="tick"></span><h4>Outlook</h4><span class="meta">geen meting</span></div>
+          <div class="ui-in">
+            <div class="warn">
+              <span class="dotbar"></span>
+              <div>
+                <b>Wat dit is, voordat de cijfers komen</b>
+                <p>Elk ander getal in deze extensie is teruggerekend uit wat er werkelijk gebeurd is en getoetst tegen het totaal van DEGIRO. Dit getal is dat niet. Het is wat er zou gebeuren als de toekomst op het verleden zou lijken, en dat hoeft niet zo te zijn. De drie lijnen zijn scenario's, geen voorspelling, en geen van de drie is een belofte.</p>
+              </div>
+            </div>
+            <div class="ctrl" style="margin-top:16px">
+              <div class="grp" role="group" aria-label="Horizon">
+                <button type="button" aria-pressed="false">1 year</button>
+                <button type="button" aria-pressed="false">3 years</button>
+                <button type="button" aria-pressed="true">5 years</button>
+              </div>
+              <div class="grp" role="group" aria-label="Maandinleg">
+                <button type="button" aria-pressed="true">From your history</button>
+                <button type="button" aria-pressed="false">I set them</button>
+              </div>
+              <label><input type="checkbox" disabled> Dividends put back to work</label>
+            </div>
+            <div class="chart">
+              <svg viewBox="0 0 640 110" role="img" aria-label="Wat werkelijk gebeurde tegenover een gunstig, een verwacht en een ongunstig scenario over vijf jaar.">
+                <g stroke="#242C38" stroke-width="1">
+                  <line x1="0" y1="26" x2="640" y2="26"/><line x1="0" y1="56" x2="640" y2="56"/><line x1="0" y1="86" x2="640" y2="86"/>
+                </g>
+                <path fill="none" stroke="#5B8DEF" stroke-width="2" stroke-linejoin="round"
+                  d="M4,101 L120,99 L240,96 L360,84 L460,60 L520,50 L636,20"/>
+                <path fill="none" stroke="#63C08A" stroke-width="1.6" stroke-dasharray="4 3"
+                  d="M520,50 L636,8"/>
+                <path fill="none" stroke="#8B96A8" stroke-width="1.6" stroke-dasharray="4 3"
+                  d="M520,50 L636,30"/>
+                <path fill="none" stroke="#F2748C" stroke-width="1.6" stroke-dasharray="4 3"
+                  d="M520,50 L636,44"/>
+              </svg>
+              <div class="legend">
+                <span><i style="background:#5B8DEF"></i>What actually happened</span>
+                <span><i style="background:#63C08A"></i>Good market</span>
+                <span><i style="background:#8B96A8"></i>Expected market</span>
+                <span><i style="background:#F2748C"></i>Bad market</span>
+              </div>
+              <p class="note">Je eigen historie is te kort voor zelfs drie stukken van vijf jaar, dus dit is een voorbeeld en geen scenario dat uit je eigen verleden komt. Behandel het als rekenwerk op een aangenomen rendement, niet als iets gemeten.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notices -->
+      <div class="panel" id="p7" role="tabpanel" aria-labelledby="t7">
+        <div class="ui">
+          <div class="ui-bar"><span class="tick"></span><h4>Notices</h4><span class="meta">alles wat de reconstructie hardop wil zeggen</span></div>
+          <div class="ui-in">
+            <div class="chips">
+              <span class="chip note">1 NOTE</span>
+              <span class="chip ok">1 OK</span>
+            </div>
+            <div class="warn" style="margin-top:14px">
+              <span class="dotbar"></span>
+              <div>
+                <b>Demo data</b>
+                <p>Deze grafieken zijn gebouwd uit gegenereerde fixtures, via hetzelfde codepad dat ook je echte rekening doorloopt. Nuttig om de interface te controleren, waardeloos als financiële informatie.</p>
+              </div>
+            </div>
+            <div class="warn" style="margin-top:12px; border-color:rgba(99,192,138,.35); background:rgba(99,192,138,.08)">
+              <span class="dotbar" style="background:var(--a-green)"></span>
+              <div>
+                <b>Total matches DEGIRO</b>
+                <p>De gereconstrueerde eindwaarde is precies € 121.303,57.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         De onderbouwing per pagina staat hier permanent zichtbaar,
+         los van welke uitsnede de tabs laten zien. Verborgen tekst
+         weegt lichter dan zichtbare tekst, en dit is precies de tekst
+         die de inhoudelijke argumentatie draagt.
+         ============================================================ -->
+    <div class="explainers rv" aria-label="Toelichting per pagina">
+      <div class="explainer">
+        <h3>Overview. Eén hoofdgetal</h3>
+        <p>Drie steuncijfers ernaast, de rest achter <b>All figures</b>. Negentien getallen in één raster is een muur die niemand leest. Onderaan de rail staan drie feiten over de data in plaats van over het geld: honderd procent gemeten, nul van de 2.053 dagen geschat, en dat de reconstructie tot op de cent klopt met wat DEGIRO zelf noemt.</p>
+      </div>
+      <div class="explainer">
+        <h3>Performance. Resultaat naast verloop</h3>
+        <p>Per periode wat het opleverde, daaronder jaar voor jaar met opening, closing, wat erin en eruit ging, en het rendement. Geketend uit de dagrendementen, dus een storting halverwege maakt het jaar niet mooier dan het was. Geen invulling met halfgevulde staafjes voor de jaren, gewoon de tabel die er in de echte pagina ook staat.</p>
+        <p>Er is ook een annualised return, een intern rendement over je eigen stortingen en opnames heen, en een maand-op-maand rooster waarin je twee maanden kunt aanwijzen om ze naast elkaar te leggen, in euro's of in rendement.</p>
+      </div>
+      <div class="explainer">
+        <h3>Composition. Waar het geld in zit</h3>
+        <p>De zes grootste posities krijgen elk een eigen band, de rest wordt gebundeld tot <b>Other (n)</b>, en het cash ligt bovenop. Daaronder, als er meer dan één munt in het spel is, een valutabalk die laat zien welke valuta de waarde van vandaag draagt. Deze demo-portefeuille is volledig in euro's, dus die kaart blijft hier verborgen: hij verschijnt pas als hij echt iets te vertellen heeft.</p>
+        <p>De stapel staat in euro's en niet in procenten, dus je ziet er niet aan af of een positie relatief zwaarder is geworden of alleen meegegroeid is. Kies een andere periode en de zes grootste worden opnieuw bepaald, wat de vergelijking tussen twee tijdvakken aan de gebruiker overlaat. Dat is precies waar de userstory over gaat die klaarligt voor de volgende stap: een aandeel-in-procenten-weergave die dit met terugwerkende kracht wel kan zeggen, zonder nieuwe data en zonder nieuwe permissie.</p>
+      </div>
+      <div class="explainer">
+        <h3>Income &amp; cost. In en uit, los van de koers</h3>
+        <p>Een dividend dat je herbelegt is geen rendement op je keuze en staat dus niet in dezelfde kolom als het koersresultaat. In deze demo staat Interest op plus dertig euro: deze portefeuille heeft geen margin gebruikt en heeft dus rente ontvangen in plaats van betaald.</p>
+        <p>Wat er niet in zit, staat er ook: Total cost telt fees, ingehouden bronbelasting en betaalde rente bij elkaar op, zodat het niet nodig is om drie kleine getallen zelf te gaan optellen om te zien wat een rekening hebben eigenlijk kost.</p>
+      </div>
+      <div class="explainer">
+        <h3>Holdings. Bedragen weg, verhoudingen blijven</h3>
+        <p>Het oogje in de bovenbalk haalt elk bedrag weg door vervanging, niet door vervaging: het getal bereikt de pagina niet en is niet uit de broncode of met kopiëren terug te halen. Percentages blijven, en dat is het punt. Je kunt +340% zeggen zonder te zeggen waarover. De geldas van de grafieken gaat mee weg in plaats van het masker langs de zijkant te herhalen.</p>
+        <p>Elke positie kan ook als kaart, getekend in plaats van gescreenshot. Vijf verhoudingen, licht of donker, bedragen standaard uit, en een naam die je kiest of weglaat. De kaart draagt het controleresultaat mee en zegt "niet gecontroleerd" als er niets was om tegen te controleren. Geen badge en geen signatuur: elk merkje dat dit kan zetten, kan iedereen die de kaart heeft ook zetten, en een na te maken keurmerk is erger dan geen.</p>
+      </div>
+      <div class="explainer">
+        <h3>Outlook. De pagina die apart staat</h3>
+        <p>Al het andere is teruggerekend uit wat er werkelijk gebeurd is en getoetst tegen het totaal van DEGIRO. Een projectie is tegen niets te toetsen, dus staat het voorbehoud boven de cijfers en komen de scenario's uit stukken die je eigen historie echt bevat. Vijfenhalf jaar historie bevat één onafhankelijke periode van vijf jaar, hoeveel overlappende vensters je er ook uit schuift. Onder de drie lijnen zegt de pagina dat hardop, en noemt het zichzelf een voorbeeld. En waar het gemeten tempo iets is wat een markt niet doet, wordt er geen grafiek getekend maar uitgelegd waarom niet.</p>
+        <p>In deze demo staat er ook: je houdt € 1.603,95 in cash tegenover € 2.652,40 ontvangen dividend, dus kan hoogstens 60% daarvan nog onbelegd liggen. De rest is aanwijsbaar ergens anders in gestopt. Dat is een plafond, geen meting, en het zet alleen de startwaarde van de knop hierboven.</p>
+      </div>
+      <div class="explainer">
+        <h3>Notices. Wat er onzeker is, staat er</h3>
+        <p>Er bestaan vier niveaus: error, warn, note en ok. Deze demo-portefeuille heeft precies één notitie en één akkoord, geen fout en geen waarschuwing, want de fixture-data klopt gewoon. Op een echte rekening met een ontbrekend veld of een vermoede aandelensplitsing staat hier een chiprij met meer kleur, en blijft een fout bovenaan elke sectie staan totdat hij is opgelost.</p>
+        <p>Er is geen openbare koppeling om op te bouwen, dus de bron kan zonder aankondiging veranderen. Verdwijnt een veld, dan zegt de extensie dat met een rode balk in plaats van stil met een nul verder te rekenen. Een gezonde rekening leest hier twee rustige chips, en niet twee problemen. En er is een knop om alles wat hier staat als bugrapport te kopiëren, met codes en verhoudingen erin en zonder bedragen of rekeninggegevens.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     4 — WAAR DE DATA BLIJFT  (tweekoloms definitierooster)
+     ============================================================ -->
+<section class="band">
+  <div class="shell">
+    <div class="rv">
+      <h2>Waar de data blijft</h2>
+      <p class="lead"><b style="color:var(--text)">Nergens.</b> Er zit geen server achter en er is geen account om aan te maken. Alles landt in de database van je eigen browser.</p>
+    </div>
+
+    <dl class="facts rv">
+      <div><dt>Inloggen</dt><dd>Geen wachtwoord en geen API-sleutel. Het gebruikt de sessie die je eigen login al in de browser heeft gezet.</dd></div>
+      <div><dt>Alleen lezen</dt><dd>Het haalt je transacties, cashmutaties en koersen op. Het kan geen order plaatsen, wijzigen of intrekken.</dd></div>
+      <div><dt>Rustig aan</dt><dd>Eén verzoek per 1,1 seconde, met opzet. De eerste synchronisatie duurt daardoor een paar minuten.</dd></div>
+      <div><dt>Geen telemetrie</dt><dd>Afgedwongen en niet beloofd: de extensie mag maar twee hosts benaderen, trader.degiro.nl en charting.vwdservices.com, en kan geen script van buiten laden.</dd></div>
+      <div><dt>Losknippen</dt><dd>De verbinding weggooien kan zonder de historie te verliezen. Elk cijfer blijft staan, bevroren op de laatste synchronisatie.</dd></div>
+      <div><dt>Bugmelden</dt><dd>Een bugrapport bevat codes, aantallen en verhoudingen. Geen bedragen, geen namen van instrumenten, geen rekeningnummer.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- ============================================================
+     5 — WAT HET NIET IS  (ingesloten proza)
+     ============================================================ -->
+<section class="band">
+  <div class="shell">
+    <div class="honest rv" id="grenzen">
+      <h2>Wat het niet is</h2>
+      <div class="honest-grid">
+        <div>
+          <div class="honest-item">
+            <h3>Geen product van DEGIRO</h3>
+            <p>Asteria is een persoonlijk project en staat op geen enkele manier in verbinding met DEGIRO. Die naam staat hier alleen om te zeggen waar het op aansluit. Geautomatiseerd je eigen rekening uitlezen kan botsen met hun voorwaarden. Langzaam is niet hetzelfde als toegestaan, dus ga zelf na wat je ermee wil.</p>
+          </div>
+          <div class="honest-item">
+            <h3>Geen advies</h3>
+            <p>Er staat hier geen aanbeveling om iets te kopen of te verkopen. Het is een rekenmachine op je eigen verleden.</p>
+          </div>
+        </div>
+        <div>
+          <div class="honest-item">
+            <h3>Geen echte cijfers</h3>
+            <p>Alle beelden op deze pagina komen uit de demomodus met gegenereerde data, gedraaid via <code>npm run demo</code> en rechtstreeks overgenomen. Geen enkel bedrag hier komt uit een echte rekening.</p>
+          </div>
+          <div class="honest-item">
+            <h3>Het gaat kapot</h3>
+            <p>Er is geen openbare koppeling om op te bouwen, dus de bron kan zonder aankondiging veranderen. Als een veld verdwijnt, zegt de extensie dat met een rode balk in plaats van stil met een nul verder te rekenen.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     6 — SLOT
+     ============================================================ -->
+<section class="band" id="install">
+  <div class="shell">
+    <div class="end rv">
+      <h2>Twee minuten, geen terminal</h2>
+      <p class="steps">Downloaden, uitpakken, <b>ontwikkelaarsmodus</b> aan, map kiezen. In de repo staat een handleiding, en je kunt de demo met voorbeelddata openen voordat je hem op je eigen rekening richt. Heb je de extensie al draaien in deze browser, dan opent de knop hieronder die demo meteen.</p>
+      <div class="cta">
+        <!-- Label en href worden door het script gezet op basis van de toestand.
+             Zonder JS blijft de veilige variant staan: naar de handleiding. -->
+        <a class="btn" id="demo" data-state="checking"
+           href="https://github.com/SirSquirell/Claudiclaude/blob/main/INSTALL.md">Demo openen</a>
+        <a class="btn btn-2" href="https://github.com/SirSquirell/Claudiclaude" id="repo">Naar de repo</a>
+      </div>
+      <p class="demostate" id="demostate" role="status" aria-live="polite"></p>
+    </div>
+
+    <footer>
+      <span>Asteria · een project van prulwerk.nl</span>
+      <span class="ver">extensie <b id="ver">0.60.3</b> · pagina <b id="sitever">2026.08.22</b></span>
+      <span class="flinks">
+        <a href="https://github.com/SirSquirell/Claudiclaude">Broncode</a>
+        <a href="https://github.com/SirSquirell/Claudiclaude/blob/main/INSTALL.md">Handleiding</a>
+        <a href="https://github.com/SirSquirell/Claudiclaude/issues">Bug melden</a>
+      </span>
+    </footer>
+  </div>
+</section>
+
+<script>
+// Tabs: één uitsnede per keer, met pijltjesnavigatie.
+(function(){
+  var list = document.querySelectorAll('.tab');
+  function show(tab){
+    list.forEach(function(t){
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      var p = document.getElementById(t.getAttribute('aria-controls'));
+      if (on) { p.setAttribute('data-on',''); } else { p.removeAttribute('data-on'); }
+    });
+  }
+  list.forEach(function(t, i){
+    t.addEventListener('click', function(){ show(t); });
+    t.addEventListener('keydown', function(e){
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      var n = list[(i + d + list.length) % list.length];
+      n.focus(); show(n);
+    });
+  });
+})();
+
+// Periode-rail in de bento is echt bedienbaar, zodat het geen plaatje is.
+(function(){
+  var g = document.querySelector('.range');
+  if (!g) return;
+  g.addEventListener('click', function(e){
+    var b = e.target.closest('button');
+    if (!b) return;
+    g.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+    b.setAttribute('aria-pressed','true');
+    var label = { '1M':'Laatste maand','3M':'Laatste 3 maanden','6M':'Laatste 6 maanden',
+                  'YTD':'Dit jaar','1Y':'Laatste 12 maanden','ALL':'Whole history' }[b.textContent.trim()];
+    var p = g.parentElement.querySelector('.period');
+    if (p) p.textContent = label + ' · 2021-01-04 → 2026-08-18';
+  });
+})();
+
+// Demoknop. De pagina kan een extensie niet installeren en niet aanroepen zonder
+// dat de extensie zich eerst bekendmaakt. Contract met de extensiekant:
+//
+//   1. Een content script op https://asteria.prulwerk.nl/* zet bij document_start
+//      document.documentElement.dataset.asteria = "<manifest.version>"
+//      en dispatcht window.dispatchEvent(new CustomEvent('asteria:ready',
+//        { detail: { version: "0.60.3" } })) voor het geval de pagina er al staat.
+//   2. Deze pagina dispatcht window CustomEvent 'asteria:open-demo'.
+//      Het content script relayt dat naar de service worker, die de options page
+//      opent met demomodus aan.
+//   3. Lukt dat niet binnen 2.5s, dan valt de knop terug op de handleiding.
+//
+// Geen extensie-ID nodig, dus dit werkt ook bij een unpacked install waar het ID
+// per gebruiker verschilt. Zie 03-DEMOKNOP.md voor de kant van de extensie.
+(function(){
+  var btn = document.getElementById('demo');
+  var msg = document.getElementById('demostate');
+  var ver = document.getElementById('ver');
+  if (!btn) return;
+
+  var INSTALL = 'https://github.com/SirSquirell/Claudiclaude/blob/main/INSTALL.md';
+
+  function set(state, label, text, href){
+    btn.setAttribute('data-state', state);
+    btn.textContent = label;
+    if (href) { btn.href = href; } else { btn.removeAttribute('href'); btn.setAttribute('role','button'); btn.tabIndex = 0; }
+    msg.innerHTML = text;
+  }
+
+  function found(version){
+    if (version && ver) ver.textContent = version;
+    set('ready', 'Demo openen',
+        'Extensie gevonden. De demo opent in een nieuw tabblad met gegenereerde cijfers, je eigen rekening wordt niet aangeraakt.');
+  }
+
+  function absent(){
+    set('absent', 'Eerst installeren',
+        'Geen extensie in deze browser. Installeren duurt ongeveer twee minuten, daarna opent deze knop de demo direct.',
+        INSTALL);
+  }
+
+  // Al aanwezig bij page load?
+  var v = document.documentElement.dataset.asteria;
+  if (v) { found(v); } else {
+    // Content scripts op document_start zijn er meestal eerder, maar niet gegarandeerd.
+    window.addEventListener('asteria:ready', function(e){
+      found(e.detail && e.detail.version);
+    }, { once: true });
+    set('checking', 'Zoeken naar extensie', '');
+    setTimeout(function(){
+      if (btn.getAttribute('data-state') === 'checking') absent();
+    }, 900);
+  }
+
+  function open(e){
+    if (btn.getAttribute('data-state') !== 'ready') return;
+    e.preventDefault();
+    var done = false;
+    window.addEventListener('asteria:demo-open', function(){ done = true; }, { once: true });
+    window.dispatchEvent(new CustomEvent('asteria:open-demo'));
+    setTimeout(function(){
+      if (!done) set('error', 'Handleiding openen',
+        'De extensie reageerde niet. Mogelijk staat hij uit in <b>chrome://extensions</b>. De handleiding legt uit hoe je dat controleert.',
+        INSTALL);
+    }, 2500);
+  }
+  btn.addEventListener('click', open);
+  btn.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') open(e); });
+})();
+
+// Entree op scroll. Eén observer, geen scroll-listener.
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
+  document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+})();
+</script>
 </body>
 </html>
