@@ -76,13 +76,12 @@ h2{font-family:var(--display); font-weight:900; font-size:clamp(26px,3.5vw,36px)
 .card p{color:var(--text-2); font-size:14.8px; margin:10px 0 0}
 
 figure{margin:34px 0 0; padding:0}
+.frame img{width:100%; height:auto}
 .frame{border-radius:14px; overflow:hidden; border:1px solid var(--line);
   background:#0B0B0F; box-shadow:var(--shadow)}
 figcaption{margin:16px 0 0; color:var(--text-2); font-size:14.8px; max-width:70ch}
 figcaption b{font-family:var(--display); font-weight:700; color:var(--text); font-size:14.8px}
 
-.pair{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:28px; margin:34px 0 0}
-.pair figure{margin:0}
 
 .facts{list-style:none; margin:30px 0 0; padding:0; display:grid; gap:12px}
 .facts li{display:grid; grid-template-columns:132px 1fr; gap:16px; align-items:baseline; font-size:15px}
@@ -130,7 +129,7 @@ footer a{color:var(--text-2)}
 
   <div class="wrap">
     <figure>
-      <div class="frame"><img src="asteria-site/shots/overview.webp" width="1600" height="1167"
+      <div class="frame"><img src="asteria-site/shots/overview.webp" width="1440" height="1293"
         alt="Overzichtspagina van Asteria met totale waarde, ingelegd geld, resultaat en een waardeverloop over vijf jaar." loading="eager"></div>
       <figcaption><b>Overview.</b> Eén hoofdgetal, drie steuncijfers ernaast, de rest achter
         <i>Alle cijfers</i>. Negentien getallen in één raster is een muur die niemand leest.
@@ -181,31 +180,29 @@ footer a{color:var(--text-2)}
       <p class="lead">Overview, Performance, Composition, Income &amp; cost, Holdings, Outlook
         en Notices. Hieronder een deel ervan.</p>
 
-      <div class="pair">
-        <figure>
-          <div class="frame"><img src="asteria-site/shots/performance.webp" width="1600" height="1167"
-            alt="Performance-pagina met resultaat per periode, cumulatief resultaat en een tabel per jaar." loading="lazy"></div>
-          <figcaption><b>Performance.</b> Resultaat per periode naast het cumulatieve verloop,
-            met daaronder jaar voor jaar. Een jaarrendement ketent de dagrendementen, dus een
-            storting binnenin vertekent het niet.</figcaption>
-        </figure>
-        <figure>
-          <div class="frame"><img src="asteria-site/shots/composition.webp" width="1600" height="1167"
-            alt="Composition-pagina met de verdeling van de portefeuille." loading="lazy"></div>
-          <figcaption><b>Composition.</b> Waar het geld in zit en hoe die verdeling verschoven
-            is, in plaats van alleen de stand van nu.</figcaption>
-        </figure>
-        <figure>
-          <div class="frame"><img src="asteria-site/shots/income.webp" width="1600" height="1167"
-            alt="Income en cost-pagina met ontvangen dividend en betaalde kosten." loading="lazy"></div>
-          <figcaption><b>Income &amp; cost.</b> Wat er binnenkwam en wat het kostte, apart van
-            het koersresultaat. Een dividend dat je herbelegt is geen rendement op je keuze en
-            staat dus niet in dezelfde kolom.</figcaption>
-        </figure>
-      </div>
+      <figure>
+        <div class="frame"><img src="asteria-site/shots/performance.webp" width="1172" height="386"
+          alt="Twee grafieken naast elkaar: resultaat per periode als staven per maand, en het cumulatieve resultaat als lijn over vijf jaar." loading="lazy"></div>
+        <figcaption><b>Performance.</b> Resultaat per periode naast het cumulatieve verloop,
+          met daaronder jaar voor jaar. Een jaarrendement ketent de dagrendementen, dus een
+          storting binnenin vertekent het niet.</figcaption>
+      </figure>
+      <figure>
+        <div class="frame"><img src="asteria-site/shots/composition.webp" width="1172" height="355"
+          alt="Gestapelde vlakgrafiek van de portefeuilleverdeling over vijf jaar, met per fonds een eigen kleur en cash bovenop." loading="lazy"></div>
+        <figcaption><b>Composition.</b> Waar het geld in zit en hoe die verdeling verschoven
+          is, in plaats van alleen de stand van nu.</figcaption>
+      </figure>
+      <figure>
+        <div class="frame"><img src="asteria-site/shots/income.webp" width="1172" height="373"
+          alt="Staafgrafiek van het ontvangen dividend per maand, met de ingehouden bronbelasting eronder gestapeld." loading="lazy"></div>
+        <figcaption><b>Income &amp; cost.</b> Wat er binnenkwam en wat het kostte, apart van
+          het koersresultaat. Een dividend dat je herbelegt is geen rendement op je keuze en
+          staat dus niet in dezelfde kolom.</figcaption>
+      </figure>
 
       <figure>
-        <div class="frame"><img src="asteria-site/shots/holdings.webp" width="1600" height="1167"
+        <div class="frame"><img src="asteria-site/shots/holdings.webp" width="1172" height="799"
           alt="Holdings-tabel met per positie de gemiddelde aankoopprijs, waarde, verhouding inleg tegen groei, resultaat, dividend en aandeel in de portefeuille." loading="lazy"></div>
         <figcaption><b>Holdings.</b> Per positie de gemiddelde aankoopprijs, de waarde, het
           resultaat, het dividend en het aandeel in het totaal. De balk in het midden splitst
@@ -214,31 +211,29 @@ footer a{color:var(--text-2)}
           gewone tabel hetzelfde uit.</figcaption>
       </figure>
 
-      <div class="pair">
-        <figure>
-          <div class="frame"><img src="asteria-site/shots/hidden.webp" width="1600" height="1167"
-            alt="Dezelfde overzichtspagina met alle bedragen vervangen door stippen, terwijl de percentages blijven staan." loading="lazy"></div>
-          <figcaption><b>Bedragen uit.</b> Het oogje in de bovenbalk haalt elk bedrag weg door
-            vervanging, niet door vervaging: het getal bereikt de pagina niet en is niet uit de
-            broncode of met kopiëren terug te halen. Percentages blijven, en dat is het punt.
-            Je kunt +340% zeggen zonder te zeggen waarover. De geldas van de grafieken gaat mee
-            weg in plaats van het masker langs de zijkant te herhalen.</figcaption>
-        </figure>
-        <figure>
-          <div class="frame"><img src="asteria-site/shots/share.webp" width="1600" height="1167"
-            alt="Deelvenster met een gegenereerde kaart voor één positie, keuze uit vormen, licht of donker thema en bedragen aan of uit." loading="lazy"></div>
-          <figcaption><b>Delen.</b> Elke positie kan als kaart, getekend in plaats van
-            gescreenshot. Vijf verhoudingen, licht of donker, bedragen standaard uit, en een
-            naam die je kiest of weglaat. De kaart draagt het controleresultaat mee en zegt
-            "niet gecontroleerd" als er niets was om tegen te controleren. Geen badge en geen
-            signatuur: elk merkje dat dit kan zetten, kan iedereen die de kaart heeft ook
-            zetten, en een na te maken keurmerk is erger dan geen.</figcaption>
-        </figure>
-      </div>
+      <figure>
+        <div class="frame"><img src="asteria-site/shots/hidden.webp" width="1208" height="325"
+          alt="De tegelrij bovenaan de pagina met elk bedrag vervangen door drie stippen, terwijl de percentages blijven staan." loading="lazy"></div>
+        <figcaption><b>Bedragen uit.</b> Het oogje in de bovenbalk haalt elk bedrag weg door
+          vervanging, niet door vervaging: het getal bereikt de pagina niet en is niet uit de
+          broncode of met kopiëren terug te halen. Percentages blijven, en dat is het punt.
+          Je kunt +340% zeggen zonder te zeggen waarover. De geldas van de grafieken gaat mee
+          weg in plaats van het masker langs de zijkant te herhalen.</figcaption>
+      </figure>
+      <figure>
+        <div class="frame"><img src="asteria-site/shots/share.webp" width="894" height="497"
+          alt="Deelvenster met een gegenereerde kaart voor één positie, keuze uit vormen, licht of donker thema en bedragen aan of uit." loading="lazy"></div>
+        <figcaption><b>Delen.</b> Elke positie kan als kaart, getekend in plaats van
+          gescreenshot. Vijf verhoudingen, licht of donker, bedragen standaard uit, en een
+          naam die je kiest of weglaat. De kaart draagt het controleresultaat mee en zegt
+          "niet gecontroleerd" als er niets was om tegen te controleren. Geen badge en geen
+          signatuur: elk merkje dat dit kan zetten, kan iedereen die de kaart heeft ook
+          zetten, en een na te maken keurmerk is erger dan geen.</figcaption>
+      </figure>
 
       <figure>
-        <div class="frame"><img src="asteria-site/shots/outlook.webp" width="1600" height="1167"
-          alt="Outlook-pagina met scenario's en een voorbehoud boven de cijfers." loading="lazy"></div>
+        <div class="frame"><img src="asteria-site/shots/outlook.webp" width="1172" height="518"
+          alt="Scenariokaart met een keuze voor horizon en maandinleg, en drie gestippelde projecties naast het werkelijke verloop." loading="lazy"></div>
         <figcaption><b>Outlook.</b> De enige pagina die geen meting is, en die staat daarom
           apart. Al het andere is teruggerekend uit wat er werkelijk gebeurd is en getoetst
           tegen het totaal van DEGIRO. Een projectie is tegen niets te toetsen, dus staat het
