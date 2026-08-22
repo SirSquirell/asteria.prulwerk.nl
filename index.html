@@ -149,9 +149,19 @@ h1,h2,h3{font-family:var(--display); letter-spacing:-.03em; line-height:1.06; ma
 }
 .hero h1{font-size:clamp(31px,3.6vw,46px); font-weight:900; letter-spacing:-.035em; max-width:23ch}
 .hero h1 u{
-  text-decoration:none; box-shadow:inset 0 -.13em 0 var(--accent);
-  padding-bottom:.02em;
+  text-decoration:none; position:relative; padding-bottom:.02em;
 }
+.hero h1 u::after{
+  content:""; position:absolute; left:0; right:0; bottom:.06em; height:.13em; border-radius:2px;
+  background:var(--accent); transform:scaleX(1); transform-origin:left;
+}
+@media (prefers-reduced-motion:no-preference){
+  /* Eén keer, bij het laden: de kop staat er al, de streep komt er net na aan.
+     Boven de vouw, dus geen scroll-trigger nodig, alleen een korte vertraging
+     zodat hij leest als "arriveert na de kop" en niet als "komt tegelijk mee". */
+  .hero h1 u::after{transform:scaleX(0); animation:underline-in .5s var(--ease) .3s both}
+}
+@keyframes underline-in{to{transform:scaleX(1)}}
 .hero p{color:var(--text-2); font-size:17.5px; margin:24px 0 0; max-width:46ch}
 .cta{display:flex; flex-wrap:wrap; gap:11px; margin-top:34px}
 .btn{
@@ -239,7 +249,18 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
   font-family:var(--display); font-weight:700; font-size:clamp(22px,2.8vw,31px);
   letter-spacing:-.025em; line-height:1.24; max-width:26ch; margin:0;
 }
-.statement em{font-style:normal; font-weight:700; box-shadow:inset 0 -.11em 0 var(--accent)}
+.statement em{font-style:normal; font-weight:700; position:relative}
+.statement em::after{
+  content:""; position:absolute; left:0; right:0; bottom:.05em; height:.11em; border-radius:2px;
+  background:var(--accent); transform:scaleX(1); transform-origin:left;
+}
+@media (prefers-reduced-motion:no-preference){
+  /* Rust tot de omringende .rv-sectie de bestaande scroll-reveal krijgt
+     (zie de IntersectionObserver onderaan): dezelfde aankomst, geen tweede
+     trigger nodig. */
+  .statement em::after{transform:scaleX(0)}
+  .rv.in .statement em::after{animation:underline-in .5s var(--ease) .15s both}
+}
 .answer{
   display:grid; grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);
   gap:clamp(28px,5vw,64px); align-items:center;
@@ -278,10 +299,13 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
   font-family:var(--display); font-weight:700; font-size:13.5px; white-space:nowrap;
   padding:9px 16px; border-radius:999px; border:1px solid var(--line);
   background:transparent; color:var(--text-2); cursor:pointer; scroll-snap-align:start;
-  transition:color .2s var(--ease), border-color .2s var(--ease), background-color .2s var(--ease);
+  transition:color .2s var(--ease), border-color .2s var(--ease), background-color .2s var(--ease),
+    transform .14s var(--ease);
 }
 .tab:hover{color:var(--text); border-color:var(--text-3)}
+.tab:active{transform:scale(.97)}
 .tab[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+@media (prefers-reduced-motion:reduce){ .tab{transition:color .2s, border-color .2s, background-color .2s} .tab:active{transform:none} }
 .tab:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
 
 .panels{margin-top:26px}
@@ -361,9 +385,11 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
 .btn[data-state="error"]{background:transparent; border-color:var(--line); color:var(--text-2)}
 .demostate{
   margin:14px 0 0; font-size:13.5px; color:var(--text-3); max-width:52ch;
-  min-height:1.4em;
+  min-height:1.4em; opacity:1; transition:opacity .16s var(--ease);
 }
+.demostate.is-swapping{opacity:0; transition-duration:.1s}
 .demostate b{color:var(--text-2); font-weight:600}
+@media (prefers-reduced-motion:reduce){ .demostate{transition:none} .demostate.is-swapping{opacity:1} }
 
 footer{
   margin-top:120px; border-top:1px solid var(--line); padding:28px 0 44px;
@@ -1257,10 +1283,19 @@ footer a:hover{color:var(--text)}
   var INSTALL = 'https://github.com/SirSquirell/Claudiclaude/blob/main/INSTALL.md';
 
   function set(state, label, text, href){
+    // Het label van de knop zelf verandert direct: dat IS de statusverandering,
+    // en de knop heeft al zijn eigen overgang op background/border/color.
     btn.setAttribute('data-state', state);
     btn.textContent = label;
     if (href) { btn.href = href; } else { btn.removeAttribute('href'); btn.setAttribute('role','button'); btn.tabIndex = 0; }
-    msg.innerHTML = text;
+    // De toelichting eronder wisselt met een korte overgang in plaats van een
+    // harde knip: hij verschijnt maar twee keer per bezoek (gevonden/afwezig,
+    // en eventueel na een klik), dus de overgang kost niets aan snelheid.
+    msg.classList.add('is-swapping');
+    setTimeout(function(){
+      msg.innerHTML = text;
+      msg.classList.remove('is-swapping');
+    }, 100);
   }
 
   function found(version){
