@@ -123,10 +123,15 @@ h1,h2,h3{font-family:var(--display); letter-spacing:-.03em; line-height:1.06; ma
    ============================================================ */
 .nav{
   height:68px; display:flex; align-items:center; justify-content:space-between; gap:24px;
-  border-bottom:1px solid var(--line);
   position:sticky; top:0; z-index:20;
   background:color-mix(in srgb, var(--bg) 86%, transparent);
   backdrop-filter:saturate(140%) blur(14px);
+  /* Zachte scheidingslijn onder het glas in plaats van een harde rand:
+     een vaste 1px-rand onder een vervagende laag oogt tegenstrijdig. */
+  box-shadow:0 1px 0 color-mix(in srgb, var(--line) 70%, transparent);
+}
+@media (prefers-reduced-transparency:reduce){
+  .nav{backdrop-filter:none; background:var(--bg)}
 }
 .mark{font-family:var(--display); font-weight:900; font-size:18px; letter-spacing:-.02em; text-decoration:none}
 /* Wordmark: het achtervoegsel is lime. Een logotype valt buiten de contrasteis van
@@ -136,9 +141,11 @@ h1,h2,h3{font-family:var(--display); letter-spacing:-.03em; line-height:1.06; ma
 .pill{
   font-size:13.5px; color:var(--text-2); text-decoration:none; white-space:nowrap;
   padding:8px 15px; border:1px solid var(--line); border-radius:999px;
-  transition:color .25s var(--ease), border-color .25s var(--ease);
+  transition:color .25s var(--ease), border-color .25s var(--ease), transform .1s var(--ease);
 }
-.pill:hover{color:var(--text); border-color:var(--text-3)}
+@media (hover:hover) and (pointer:fine){ .pill:hover{color:var(--text); border-color:var(--text-3)} }
+.pill:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){ .pill{transition:color .25s, border-color .25s} .pill:active{transform:none} }
 @media (max-width:720px){ .nav-r .pill:not(:last-child){display:none} }
 
 /* ============================================================
@@ -179,11 +186,16 @@ h1,h2,h3{font-family:var(--display); letter-spacing:-.03em; line-height:1.06; ma
 @media (max-width:480px){
   .btn{padding:12px 18px; font-size:14px}
   .eyebrow{letter-spacing:.1em; font-size:10.5px}
+  /* Kleinere kop, dus iets minder negatieve tracking: dezelfde letter-spacing
+     als op desktop leest op dit formaat te dichtgeknepen. */
+  .hero h1{letter-spacing:-.03em}
 }
 .btn-1{background:var(--accent); color:var(--on-accent)}
-.btn-1:hover{transform:translateY(-1px)}
 .btn-2{border-color:var(--line); color:var(--text-2)}
-.btn-2:hover{color:var(--text); border-color:var(--text-3); transform:translateY(-1px)}
+@media (hover:hover) and (pointer:fine){
+  .btn-1:hover{transform:translateY(-1px)}
+  .btn-2:hover{color:var(--text); border-color:var(--text-3); transform:translateY(-1px)}
+}
 
 .hero-vis{position:relative}
 @media (min-width:1400px){
@@ -308,7 +320,7 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
   transition:color .2s var(--ease), border-color .2s var(--ease), background-color .2s var(--ease),
     transform .14s var(--ease);
 }
-.tab:hover{color:var(--text); border-color:var(--text-3)}
+@media (hover:hover) and (pointer:fine){ .tab:hover{color:var(--text); border-color:var(--text-3)} }
 .tab:active{transform:scale(.97)}
 .tab[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
 @media (prefers-reduced-motion:reduce){ .tab{transition:color .2s, border-color .2s, background-color .2s} .tab:active{transform:none} }
@@ -318,9 +330,11 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
 .panel{display:none}
 .panel[data-on]{display:block}
 @media (prefers-reduced-motion:no-preference){
-  .panel[data-on] > *{animation:fade .45s var(--ease) both}
+  /* Kort en opacity-only: dit kan meerdere keren per seconde herstarten als
+     iemand snel met de pijltjestoetsen door de zeven tabs gaat. */
+  .panel[data-on] > *{animation:fade .22s var(--ease) both}
 }
-@keyframes fade{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+@keyframes fade{from{opacity:0} to{opacity:1}}
 
 /* De onderbouwing staat los van de tabs: alle zeven blijven zichtbaar,
    alleen de uitsnede erboven wisselt. Zo woont de inhoudelijke tekst niet
@@ -386,7 +400,7 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
   background:var(--surface-2); color:var(--text-2); border-color:var(--line);
 }
 .btn[data-state="absent"]{background:transparent; border-color:var(--line); color:var(--text-2)}
-.btn[data-state="absent"]:hover{color:var(--text); border-color:var(--text-3)}
+@media (hover:hover) and (pointer:fine){ .btn[data-state="absent"]:hover{color:var(--text); border-color:var(--text-3)} }
 .btn[data-state="ready"]{background:var(--accent); color:var(--on-accent)}
 .btn[data-state="error"]{background:transparent; border-color:var(--line); color:var(--text-2)}
 .demostate{
@@ -395,7 +409,9 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
 }
 .demostate.is-swapping{opacity:0; transition-duration:.1s}
 .demostate b{color:var(--text-2); font-weight:600}
-@media (prefers-reduced-motion:reduce){ .demostate{transition:none} .demostate.is-swapping{opacity:1} }
+/* Geen reduced-motion-uitzondering hier: dit is een opacity-fade zonder
+   verplaatsing, en die mag blijven staan, dat helpt juist om te zien dat
+   de tekst is gewisseld. */
 
 footer{
   margin-top:120px; border-top:1px solid var(--line); padding:28px 0 44px;
@@ -408,8 +424,8 @@ footer{
 }
 .ver b{color:var(--text-2); font-weight:500}
 .flinks{display:flex; gap:20px}
-footer a{text-decoration:none; color:var(--text-2)}
-footer a:hover{color:var(--text)}
+footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--ease)}
+@media (hover:hover) and (pointer:fine){ footer a:hover{color:var(--text)} }
 
 /* ============================================================
    REVEAL  (entree op scroll, verder niets)
@@ -451,15 +467,18 @@ footer a:hover{color:var(--text)}
 .range button{
   font:inherit; font-weight:600; font-size:12.5px; color:var(--a-text);
   background:transparent; border:0; border-radius:999px; padding:6px 13px; cursor:pointer;
-  transition:background-color .18s var(--ease), color .18s var(--ease);
+  transition:background-color .18s var(--ease), color .18s var(--ease), transform .14s var(--ease);
 }
-.range button:hover{background:var(--a-panel-2)}
+@media (hover:hover) and (pointer:fine){ .range button:hover{background:var(--a-panel-2)} }
+.range button:active{transform:scale(.96)}
 .range button[aria-pressed="true"]{background:var(--a-panel-2); box-shadow:inset 0 0 0 1px var(--a-line)}
 .range .sep{margin-left:auto; font-size:11.5px; color:var(--a-mut); padding-right:6px}
 .period{
   font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--a-dim);
   font-variant-numeric:tabular-nums; margin-bottom:10px;
+  transition:opacity .16s var(--ease);
 }
+.period.is-swapping{opacity:0; transition-duration:.1s}
 
 /* kpi-rail */
 .kpis{display:grid; grid-template-columns:1.7fr 1fr 1fr; gap:22px; align-items:start}
@@ -506,8 +525,14 @@ footer a:hover{color:var(--text)}
 .ctrl .grp button{
   font:inherit; font-weight:600; color:var(--a-text); background:transparent; border:0;
   border-radius:6px; padding:5px 10px; cursor:pointer;
+  transition:background-color .18s var(--ease), transform .14s var(--ease);
 }
+.ctrl .grp button:active{transform:scale(.96)}
 .ctrl .grp button[aria-pressed="true"]{background:var(--a-panel-2)}
+@media (prefers-reduced-motion:reduce){
+  .range button, .ctrl .grp button{transition:background-color .18s, color .18s}
+  .range button:active, .ctrl .grp button:active{transform:none}
+}
 .ctrl label{display:inline-flex; align-items:center; gap:6px}
 
 /* splitbalk-rijen (holdings) */
@@ -602,9 +627,9 @@ footer a:hover{color:var(--text)}
     <div>
       <p class="eyebrow">Asteria · portefeuillehistorie voor DEGIRO</p>
       <h1>Wat je rekening waard was, <u>elke dag</u>.</h1>
-      <p>Asteria rekent uit je eigen transacties en slotkoersen terug wat je portefeuille op elke dag waard was, iets wat DEGIRO's eigen interface niet laat zien.</p>
+      <p>Asteria rekent uit je eigen transacties en slotkoersen terug wat je portefeuille elke dag waard was, iets wat DEGIRO's interface niet laat zien.</p>
       <div class="cta">
-        <a class="btn btn-1" href="#repo">Naar de repo</a>
+        <a class="btn btn-1" href="#repo">Broncode</a>
         <a class="btn btn-2" href="#pages">Bekijk de pagina's</a>
       </div>
     </div>
@@ -1209,7 +1234,7 @@ footer a:hover{color:var(--text)}
              Zonder JS blijft de veilige variant staan: naar de handleiding. -->
         <a class="btn" id="demo" data-state="checking"
            href="https://github.com/SirSquirell/Claudiclaude/blob/main/INSTALL.md">Demo openen</a>
-        <a class="btn btn-2" href="https://github.com/SirSquirell/Claudiclaude" id="repo">Naar de repo</a>
+        <a class="btn btn-2" href="https://github.com/SirSquirell/Claudiclaude" id="repo">Broncode</a>
       </div>
       <p class="demostate" id="demostate" role="status" aria-live="polite"></p>
     </div>
@@ -1262,7 +1287,14 @@ footer a:hover{color:var(--text)}
     var label = { '1M':'Laatste maand','3M':'Laatste 3 maanden','6M':'Laatste 6 maanden',
                   'YTD':'Dit jaar','1Y':'Laatste 12 maanden','ALL':'Whole history' }[b.textContent.trim()];
     var p = g.parentElement.querySelector('.period');
-    if (p) p.textContent = label + ' · 2021-01-04 → 2026-08-18';
+    if (!p) return;
+    // Zelfde swap-idioom als de demoknop verderop: kort uitfaden, tekst
+    // wisselen, weer infaden, in plaats van een harde tekst-teleport.
+    p.classList.add('is-swapping');
+    setTimeout(function(){
+      p.textContent = label + ' · 2021-01-04 → 2026-08-18';
+      p.classList.remove('is-swapping');
+    }, 100);
   });
 })();
 
