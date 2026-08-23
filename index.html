@@ -1233,7 +1233,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
         <!-- Label en href worden door het script gezet op basis van de toestand.
              Zonder JS blijft de veilige variant staan: naar de handleiding. -->
         <a class="btn" id="demo" data-state="checking"
-           href="https://github.com/SirSquirell/Claudiclaude/blob/main/INSTALL.md">Demo openen</a>
+           href="/handleiding.html">Demo openen</a>
         <a class="btn btn-2" href="https://github.com/SirSquirell/Claudiclaude" id="repo">Broncode</a>
       </div>
       <p class="demostate" id="demostate" role="status" aria-live="polite"></p>
@@ -1244,7 +1244,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
       <span class="ver">extensie <b id="ver">0.60.3</b> · pagina <b id="sitever">2026.08.22</b></span>
       <span class="flinks">
         <a href="https://github.com/SirSquirell/Claudiclaude">Broncode</a>
-        <a href="https://github.com/SirSquirell/Claudiclaude/blob/main/INSTALL.md">Handleiding</a>
+        <a href="/handleiding.html">Handleiding</a>
         <a href="https://github.com/SirSquirell/Claudiclaude/issues">Bug melden</a>
       </span>
     </footer>
@@ -1318,7 +1318,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
   var ver = document.getElementById('ver');
   if (!btn) return;
 
-  var INSTALL = 'https://github.com/SirSquirell/Claudiclaude/blob/main/INSTALL.md';
+  var INSTALL = '/handleiding.html';
 
   function set(state, label, text, href){
     // Het label van de knop zelf verandert direct: dat IS de statusverandering,

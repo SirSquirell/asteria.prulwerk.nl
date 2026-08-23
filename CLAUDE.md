@@ -1,9 +1,12 @@
 # asteria.prulwerk.nl
 
-Statische GitHub Pages-site voor Asteria. Eén pagina: `index.html` in de
-root. `fonts/` bevat de zelfgehoste Archivo-instances, `og.png` is het
-gerenderde Open Graph-beeld, `robots.txt` en `sitemap.xml` staan in de root
-omdat dit het enige pad is dat GitHub Pages voor dit domein serveert.
+Statische GitHub Pages-site voor Asteria. Twee pagina's in de root:
+`index.html` is de hoofdpagina, `handleiding.html` is de installatiehandleiding
+(overgenomen uit `INSTALL.md` in de Claudiclaude-repo, zodat een bezoeker niet
+naar GitHub moet om te installeren). `fonts/` bevat de zelfgehoste
+Archivo-instances, `og.png` is het gerenderde Open Graph-beeld, `robots.txt`
+en `sitemap.xml` staan in de root omdat dit het enige pad is dat GitHub Pages
+voor dit domein serveert.
 
 `asteria-site/` is niet meer in gebruik. De map bestond toen de site nog uit
 losse `.webp`-schermafdrukken bestond; die zijn vervangen door de
