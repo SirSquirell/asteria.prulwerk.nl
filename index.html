@@ -143,7 +143,7 @@ h1,h2,h3{font-family:var(--display); letter-spacing:-.03em; line-height:1.06; ma
   padding:8px 15px; border:1px solid var(--line); border-radius:999px;
   transition:color .25s var(--ease), border-color .25s var(--ease), transform .1s var(--ease);
 }
-.pill:hover{color:var(--text); border-color:var(--text-3)}
+@media (hover:hover) and (pointer:fine){ .pill:hover{color:var(--text); border-color:var(--text-3)} }
 .pill:active{transform:scale(.97)}
 @media (prefers-reduced-motion:reduce){ .pill{transition:color .25s, border-color .25s} .pill:active{transform:none} }
 @media (max-width:720px){ .nav-r .pill:not(:last-child){display:none} }
@@ -191,9 +191,11 @@ h1,h2,h3{font-family:var(--display); letter-spacing:-.03em; line-height:1.06; ma
   .hero h1{letter-spacing:-.03em}
 }
 .btn-1{background:var(--accent); color:var(--on-accent)}
-.btn-1:hover{transform:translateY(-1px)}
 .btn-2{border-color:var(--line); color:var(--text-2)}
-.btn-2:hover{color:var(--text); border-color:var(--text-3); transform:translateY(-1px)}
+@media (hover:hover) and (pointer:fine){
+  .btn-1:hover{transform:translateY(-1px)}
+  .btn-2:hover{color:var(--text); border-color:var(--text-3); transform:translateY(-1px)}
+}
 
 .hero-vis{position:relative}
 @media (min-width:1400px){
@@ -318,7 +320,7 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
   transition:color .2s var(--ease), border-color .2s var(--ease), background-color .2s var(--ease),
     transform .14s var(--ease);
 }
-.tab:hover{color:var(--text); border-color:var(--text-3)}
+@media (hover:hover) and (pointer:fine){ .tab:hover{color:var(--text); border-color:var(--text-3)} }
 .tab:active{transform:scale(.97)}
 .tab[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
 @media (prefers-reduced-motion:reduce){ .tab{transition:color .2s, border-color .2s, background-color .2s} .tab:active{transform:none} }
@@ -328,9 +330,11 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
 .panel{display:none}
 .panel[data-on]{display:block}
 @media (prefers-reduced-motion:no-preference){
-  .panel[data-on] > *{animation:fade .45s var(--ease) both}
+  /* Kort en opacity-only: dit kan meerdere keren per seconde herstarten als
+     iemand snel met de pijltjestoetsen door de zeven tabs gaat. */
+  .panel[data-on] > *{animation:fade .22s var(--ease) both}
 }
-@keyframes fade{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+@keyframes fade{from{opacity:0} to{opacity:1}}
 
 /* De onderbouwing staat los van de tabs: alle zeven blijven zichtbaar,
    alleen de uitsnede erboven wisselt. Zo woont de inhoudelijke tekst niet
@@ -396,7 +400,7 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
   background:var(--surface-2); color:var(--text-2); border-color:var(--line);
 }
 .btn[data-state="absent"]{background:transparent; border-color:var(--line); color:var(--text-2)}
-.btn[data-state="absent"]:hover{color:var(--text); border-color:var(--text-3)}
+@media (hover:hover) and (pointer:fine){ .btn[data-state="absent"]:hover{color:var(--text); border-color:var(--text-3)} }
 .btn[data-state="ready"]{background:var(--accent); color:var(--on-accent)}
 .btn[data-state="error"]{background:transparent; border-color:var(--line); color:var(--text-2)}
 .demostate{
@@ -405,7 +409,9 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
 }
 .demostate.is-swapping{opacity:0; transition-duration:.1s}
 .demostate b{color:var(--text-2); font-weight:600}
-@media (prefers-reduced-motion:reduce){ .demostate{transition:none} .demostate.is-swapping{opacity:1} }
+/* Geen reduced-motion-uitzondering hier: dit is een opacity-fade zonder
+   verplaatsing, en die mag blijven staan, dat helpt juist om te zien dat
+   de tekst is gewisseld. */
 
 footer{
   margin-top:120px; border-top:1px solid var(--line); padding:28px 0 44px;
@@ -419,7 +425,7 @@ footer{
 .ver b{color:var(--text-2); font-weight:500}
 .flinks{display:flex; gap:20px}
 footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--ease)}
-footer a:hover{color:var(--text)}
+@media (hover:hover) and (pointer:fine){ footer a:hover{color:var(--text)} }
 
 /* ============================================================
    REVEAL  (entree op scroll, verder niets)
@@ -463,7 +469,7 @@ footer a:hover{color:var(--text)}
   background:transparent; border:0; border-radius:999px; padding:6px 13px; cursor:pointer;
   transition:background-color .18s var(--ease), color .18s var(--ease), transform .14s var(--ease);
 }
-.range button:hover{background:var(--a-panel-2)}
+@media (hover:hover) and (pointer:fine){ .range button:hover{background:var(--a-panel-2)} }
 .range button:active{transform:scale(.96)}
 .range button[aria-pressed="true"]{background:var(--a-panel-2); box-shadow:inset 0 0 0 1px var(--a-line)}
 .range .sep{margin-left:auto; font-size:11.5px; color:var(--a-mut); padding-right:6px}
@@ -473,7 +479,6 @@ footer a:hover{color:var(--text)}
   transition:opacity .16s var(--ease);
 }
 .period.is-swapping{opacity:0; transition-duration:.1s}
-@media (prefers-reduced-motion:reduce){ .period{transition:none} .period.is-swapping{opacity:1} }
 
 /* kpi-rail */
 .kpis{display:grid; grid-template-columns:1.7fr 1fr 1fr; gap:22px; align-items:start}
