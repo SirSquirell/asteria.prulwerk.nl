@@ -8,10 +8,6 @@ Archivo-instances, `og.png` is het gerenderde Open Graph-beeld, `robots.txt`
 en `sitemap.xml` staan in de root omdat dit het enige pad is dat GitHub Pages
 voor dit domein serveert.
 
-`asteria-site/` is niet meer in gebruik. De map bestond toen de site nog uit
-losse `.webp`-schermafdrukken bestond; die zijn vervangen door de
-gereconstrueerde HTML-uitsnedes in `index.html` zelf.
-
 De broncode van de extensie staat in een andere repo:
 [SirSquirell/Claudiclaude](https://github.com/SirSquirell/Claudiclaude).
 
@@ -38,8 +34,8 @@ altijd beter dan een cijfer dat niemand kan controleren.
 ## Demoknop
 
 De pagina detecteert de Asteria-extensie via een content script op
-`https://asteria.prulwerk.nl/*` (zie `03-DEMOKNOP.md` in de opdrachtbrief en
-de patch in `extension-patch/` in deze repo, die naar Claudiclaude toe moet).
+`https://asteria.prulwerk.nl/*` (zie US-97 in `docs/BACKLOG.md` van
+Claudiclaude, waar de kant van de extensie beschreven staat).
 Verander de eventnamen (`asteria:ready`, `asteria:open-demo`,
 `asteria:demo-open`) niet zonder ze op beide plekken aan te passen.
 
