@@ -451,7 +451,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
   border-bottom:1px solid var(--a-line); background:var(--a-panel);
 }
 .ui-bar .tick{width:3px; height:15px; border-radius:2px; background:var(--a-amber)}
-.ui-bar h4{
+.ui-bar .ui-title{
   margin:0; font-family:var(--display); font-weight:700; font-size:14px;
   letter-spacing:-.01em; color:var(--a-text);
 }
@@ -619,6 +619,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
   </nav>
 </div>
 
+<main>
 <!-- ============================================================
      HERO  —  de vergelijking is het argument
      ============================================================ -->
@@ -698,7 +699,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
       </div>
 
       <div class="ui" aria-label="Uitsnede: holdings met splitbalk, echte demodata">
-        <div class="ui-bar"><span class="tick"></span><h4>Holdings</h4><span class="meta">paid in vs grown</span></div>
+        <div class="ui-bar"><span class="tick"></span><p class="ui-title">Holdings</p><span class="meta">paid in vs grown</span></div>
         <div class="ui-in">
           <div class="rows">
             <div class="row">
@@ -855,7 +856,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
       <!-- Overview -->
       <div class="panel" id="p1" role="tabpanel" aria-labelledby="t1" data-on>
         <div class="ui">
-          <div class="ui-bar"><span class="tick"></span><h4>Portfolio history</h4><span class="meta">2021-01-04 → 2026-08-18 · 2.053 dagen</span></div>
+          <div class="ui-bar"><span class="tick"></span><p class="ui-title">Portfolio history</p><span class="meta">2021-01-04 → 2026-08-18 · 2.053 dagen</span></div>
           <div class="ui-in">
             <div class="kpis">
               <div class="kpi lg">
@@ -898,7 +899,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
       <!-- Performance -->
       <div class="panel" id="p2" role="tabpanel" aria-labelledby="t2">
         <div class="ui">
-          <div class="ui-bar"><span class="tick"></span><h4>Performance</h4><span class="meta">per maand · geketend</span></div>
+          <div class="ui-bar"><span class="tick"></span><p class="ui-title">Performance</p><span class="meta">per maand · geketend</span></div>
           <div class="ui-in">
             <div class="chart-h">Result per period</div>
             <div class="bars" aria-hidden="true">
@@ -931,7 +932,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
       <!-- Composition -->
       <div class="panel" id="p3" role="tabpanel" aria-labelledby="t3">
         <div class="ui">
-          <div class="ui-bar"><span class="tick"></span><h4>Composition</h4><span class="meta">zes grootste posities, de rest gebundeld</span></div>
+          <div class="ui-bar"><span class="tick"></span><p class="ui-title">Composition</p><span class="meta">zes grootste posities, de rest gebundeld</span></div>
           <div class="ui-in">
             <div class="kpis pack" style="margin-bottom:18px">
               <div class="kpi">
@@ -976,7 +977,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
       <!-- Income & cost -->
       <div class="panel" id="p4" role="tabpanel" aria-labelledby="t4">
         <div class="ui">
-          <div class="ui-bar"><span class="tick"></span><h4>Income &amp; cost</h4><span class="meta">apart van het koersresultaat</span></div>
+          <div class="ui-bar"><span class="tick"></span><p class="ui-title">Income &amp; cost</p><span class="meta">apart van het koersresultaat</span></div>
           <div class="ui-in">
             <div class="io four">
               <div>
@@ -1008,7 +1009,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
       <!-- Holdings -->
       <div class="panel" id="p5" role="tabpanel" aria-labelledby="t5">
         <div class="ui">
-          <div class="ui-bar"><span class="tick"></span><h4>Holdings</h4><span class="meta">bedragen uit</span></div>
+          <div class="ui-bar"><span class="tick"></span><p class="ui-title">Holdings</p><span class="meta">bedragen uit</span></div>
           <div class="ui-in">
             <div class="rows">
               <div class="row">
@@ -1047,7 +1048,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
       <!-- Outlook -->
       <div class="panel" id="p6" role="tabpanel" aria-labelledby="t6">
         <div class="ui">
-          <div class="ui-bar"><span class="tick"></span><h4>Outlook</h4><span class="meta">geen meting</span></div>
+          <div class="ui-bar"><span class="tick"></span><p class="ui-title">Outlook</p><span class="meta">geen meting</span></div>
           <div class="ui-in">
             <div class="warn">
               <span class="dotbar"></span>
@@ -1097,7 +1098,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
       <!-- Notices -->
       <div class="panel" id="p7" role="tabpanel" aria-labelledby="t7">
         <div class="ui">
-          <div class="ui-bar"><span class="tick"></span><h4>Notices</h4><span class="meta">alles wat de reconstructie hardop wil zeggen</span></div>
+          <div class="ui-bar"><span class="tick"></span><p class="ui-title">Notices</p><span class="meta">alles wat de reconstructie hardop wil zeggen</span></div>
           <div class="ui-in">
             <div class="chips">
               <span class="chip note">1 NOTE</span>
@@ -1238,7 +1239,11 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
       </div>
       <p class="demostate" id="demostate" role="status" aria-live="polite"></p>
     </div>
+  </div>
+</section>
+</main>
 
+<div class="shell">
     <footer>
       <span>Asteria · een project van prulwerk.nl</span>
       <span class="ver">extensie <b id="ver">0.63.0</b> · pagina <b id="sitever">2026.08.24</b></span>
@@ -1248,8 +1253,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
         <a href="https://github.com/SirSquirell/Claudiclaude/issues">Bug melden</a>
       </span>
     </footer>
-  </div>
-</section>
+</div>
 
 <script>
 // Tabs: één uitsnede per keer, met pijltjesnavigatie.
