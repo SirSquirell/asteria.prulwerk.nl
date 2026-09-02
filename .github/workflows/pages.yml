@@ -18,6 +18,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write
 
 concurrency:
   group: pages
@@ -62,3 +63,26 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # Mislukt build of deploy, dan komt er een issue in deze repo met de link naar
+  # de run, zodat een kapotte publicatie niet alleen in het Actions-tabblad
+  # staat. Staat er al een open issue met deze titel, dan komt er geen tweede.
+  melden:
+    needs: [build, deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Issue openen als er nog geen open staat
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          open=$(gh issue list --state open --search '"Deploy Pages mislukt" in:title' --json number --jq 'length')
+          if [ "$open" != "0" ]; then
+            echo "Er staat al een open issue, geen nieuwe aangemaakt."
+            exit 0
+          fi
+          gh issue create \
+            --title "Deploy Pages mislukt" \
+            --body "De workflow Deploy Pages is mislukt. Log: $RUN_URL"
