@@ -105,6 +105,12 @@ body{
 }
 a{color:inherit}
 img,svg{display:block; max-width:100%}
+/* Zichtbare focus op alles wat je met het toetsenbord kunt bedienen. Eén regel,
+   niet per component, zodat een nieuwe knop hem niet kan vergeten. */
+.btn:focus-visible, .pill:focus-visible, .tab:focus-visible, .mark:focus-visible,
+footer a:focus-visible, .range button:focus-visible, .ctrl .grp button:focus-visible{
+  outline:2px solid var(--accent-line); outline-offset:3px;
+}
 h1,h2,h3{font-family:var(--display); letter-spacing:-.03em; line-height:1.06; margin:0}
 
 /* ============================================================
@@ -324,7 +330,6 @@ h2{font-size:clamp(28px,3.6vw,42px); font-weight:900}
 .tab:active{transform:scale(.97)}
 .tab[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
 @media (prefers-reduced-motion:reduce){ .tab{transition:color .2s, border-color .2s, background-color .2s} .tab:active{transform:none} }
-.tab:focus-visible{outline:2px solid var(--accent-line); outline-offset:3px}
 
 .panels{margin-top:26px}
 .panel{display:none}
