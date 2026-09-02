@@ -1320,7 +1320,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
 
   var INSTALL = '/handleiding.html';
 
-  function set(state, label, text, href){
+  function set(state, label, text, href, strong){
     // Het label van de knop zelf verandert direct: dat IS de statusverandering,
     // en de knop heeft al zijn eigen overgang op background/border/color.
     btn.setAttribute('data-state', state);
@@ -1331,9 +1331,23 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
     // en eventueel na een klik), dus de overgang kost niets aan snelheid.
     msg.classList.add('is-swapping');
     setTimeout(function(){
-      msg.innerHTML = text;
+      render(text, strong);
       msg.classList.remove('is-swapping');
     }, 100);
+  }
+
+  // Geen innerHTML: de tekst wordt als tekstknoop gezet. Wil een melding een
+  // vetgedrukt stuk, dan staat dat apart in `strong` en wordt het als <b>
+  // opgebouwd op de plek van de marker.
+  function render(text, strong){
+    msg.textContent = '';
+    if (!strong) { msg.textContent = text; return; }
+    var parts = text.split('%s');
+    msg.appendChild(document.createTextNode(parts[0]));
+    var b = document.createElement('b');
+    b.textContent = strong;
+    msg.appendChild(b);
+    msg.appendChild(document.createTextNode(parts[1] || ''));
   }
 
   function found(version){
@@ -1369,8 +1383,8 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
     window.dispatchEvent(new CustomEvent('asteria:open-demo'));
     setTimeout(function(){
       if (!done) set('error', 'Handleiding openen',
-        'De extensie reageerde niet. Mogelijk staat hij uit in <b>chrome://extensions</b>. De handleiding legt uit hoe je dat controleert.',
-        INSTALL);
+        'De extensie reageerde niet. Mogelijk staat hij uit in %s. De handleiding legt uit hoe je dat controleert.',
+        INSTALL, 'chrome://extensions');
     }, 2500);
   }
   btn.addEventListener('click', open);
