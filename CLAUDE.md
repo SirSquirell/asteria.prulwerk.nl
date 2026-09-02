@@ -10,6 +10,7 @@ voor dit domein serveert.
 
 De broncode van de extensie staat in een andere repo:
 [SirSquirell/Claudiclaude](https://github.com/SirSquirell/Claudiclaude).
+Wat hier nog moet gebeuren staat in `docs/BACKLOG.md`.
 
 ## Versienummer in de footer
 
@@ -45,7 +46,10 @@ Verander de eventnamen (`asteria:ready`, `asteria:open-demo`,
 - Geen extern script en geen externe fetch vanaf de pagina, behalve wat al
   zelfgehost is.
 - Nul em-dashes in zichtbare tekst.
-- Geen horizontale overflow tussen 320 en 1600px.
+- Geen horizontale overflow tussen 320 en 1600px. `body` heeft geen
+  `overflow-x:hidden`; `node tools/check-overflow.mjs` meet het in een
+  headless Chromium (en eist een lege console, dus ook geen CSP-overtreding).
+  Draai dat na elke wijziging aan opmaak of aan de CSP-meta.
 - Het app-palet (`--a-*` custom properties) staat op `:root`, niet in een
   `prefers-color-scheme`-query: de gereconstrueerde product-UI kleurt niet
   mee met het paginathema, net als een schermafdruk dat ook niet doet.
