@@ -36,11 +36,10 @@
   "inLanguage": "nl-NL",
   "url": "https://asteria.prulwerk.nl/",
   "codeRepository": "https://github.com/SirSquirell/Claudiclaude",
-  "license": "https://github.com/SirSquirell/Claudiclaude",
   "isAccessibleForFree": true,
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
   "description": "Chrome-extensie die de dagelijkse waarde van een DEGIRO-portefeuille reconstrueert uit eigen transacties, cashmutaties en slotkoersen. Geen server en geen account: de data blijft in de browser van de gebruiker.",
-  "author": { "@type": "Person", "name": "prulwerk.nl", "url": "https://prulwerk.nl/" },
+  "author": { "@type": "Organization", "name": "prulwerk.nl", "url": "https://prulwerk.nl/" },
   "disambiguatingDescription": "Geen product van DEGIRO en op geen enkele manier met DEGIRO verbonden."
 }
 </script>
@@ -1313,7 +1312,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
 //   1. Een content script op https://asteria.prulwerk.nl/* zet bij document_start
 //      document.documentElement.dataset.asteria = "<manifest.version>"
 //      en dispatcht window.dispatchEvent(new CustomEvent('asteria:ready',
-//        { detail: { version: "0.60.3" } })) voor het geval de pagina er al staat.
+//        { detail: { version: "<manifest.version>" } })) voor het geval de pagina er al staat.
 //   2. Deze pagina dispatcht window CustomEvent 'asteria:open-demo'.
 //      Het content script relayt dat naar de service worker, die de options page
 //      opent met demomodus aan.
