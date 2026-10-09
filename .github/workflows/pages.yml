@@ -9,6 +9,9 @@ name: Deploy Pages
 # "GitHub Actions" staan in plaats van "Deploy from a branch". Zonder die
 # omzetting draait deze workflow wel, maar publiceert Pages nog steeds de
 # ongebouwde inhoud van de branch.
+#
+# Wat niet in de stap "Site samenstellen" staat wordt niet gepubliceerd: een
+# nieuw bestand voor de site moet daar ook bij.
 on:
   push:
     branches: [main]
@@ -16,9 +19,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-  issues: write
 
 concurrency:
   group: pages
@@ -31,11 +31,13 @@ jobs:
       - name: Checkout asteria.prulwerk.nl
         uses: actions/checkout@v4
 
-      - name: Checkout Claudiclaude (voor manifest.json)
+      - name: Checkout Claudiclaude (alleen manifest.json)
         uses: actions/checkout@v4
         with:
           repository: SirSquirell/Claudiclaude
           path: claudiclaude
+          sparse-checkout: manifest.json
+          sparse-checkout-cone-mode: false
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -45,16 +47,27 @@ jobs:
       - name: Versie injecteren
         run: node tools/inject-version.mjs --manifest claudiclaude/manifest.json
 
+      - name: Site samenstellen (allowlist, de rest gaat niet mee)
+        run: |
+          mkdir _site
+          cp index.html handleiding.html og.png robots.txt sitemap.xml CNAME \
+             favicon.svg favicon-light.svg favicon-32.png apple-touch-icon.png _site/
+          cp -r fonts _site/fonts
+          ls -R _site
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
   deploy:
     needs: build
+    permissions:
+      pages: write
+      id-token: write
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -70,6 +83,8 @@ jobs:
   melden:
     needs: [build, deploy]
     if: failure()
+    permissions:
+      issues: write
     runs-on: ubuntu-latest
     steps:
       - name: Issue openen als er nog geen open staat
