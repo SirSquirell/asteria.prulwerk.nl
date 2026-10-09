@@ -38,6 +38,16 @@ if (!MANIFEST) {
 
 const { version } = JSON.parse(await readFile(MANIFEST, 'utf8'));
 
+// De versie komt uit een andere repo en gaat zonder escaping de HTML en de
+// JSON-LD in; alleen een kaal semver-nummer mag erdoor.
+if (typeof version !== 'string' || !/^\d+\.\d+\.\d+$/.test(version)) {
+  console.error(`Ongeldige versie in ${MANIFEST}: ${JSON.stringify(version)} (verwacht X.Y.Z).`);
+  process.exit(1);
+}
+
+// Een functie als vervanging, zodat $-reeksen in de waarde inert zijn.
+const between = (value) => (_match, open, close) => open + value + close;
+
 // Publicatiedatum als jaar.maand.dag, in Europe/Amsterdam.
 const todayDots = new Intl.DateTimeFormat('nl-NL', {
   timeZone: 'Europe/Amsterdam',
@@ -67,15 +77,15 @@ if (missing.length) {
 }
 
 html = html
-  .replace(patterns[0], `$1${version}$2`)
-  .replace(patterns[1], `$1${todayDots}$2`)
+  .replace(patterns[0], between(version))
+  .replace(patterns[1], between(todayDots))
   // ook in de JSON-LD, anders staat daar een andere versie dan in de footer
-  .replace(patterns[2], `$1${version}$2`);
+  .replace(patterns[2], between(version));
 
 await writeFile(PAGE, html);
 
 let sitemap = await readFile(SITEMAP, 'utf8');
-sitemap = sitemap.replace(/(<lastmod>)[^<]*(<\/lastmod>)/, `$1${todayIso}$2`);
+sitemap = sitemap.replace(/(<lastmod>)[^<]*(<\/lastmod>)/, between(todayIso));
 await writeFile(SITEMAP, sitemap);
 
 console.log(`extensie ${version} · pagina ${todayDots}`);
