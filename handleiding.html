@@ -153,8 +153,9 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
     <ol class="steplist">
       <li class="step">
         <h2>Download de map</h2>
+        <!-- INSTALL.md in Claudiclaude verwijst naar de Releases-pagina, maar die heeft nog geen release (gecontroleerd 2026-10-09). Tot de eerste release bestaat blijft dit Code > Download ZIP; daarna stap 1 overnemen, inclusief de sha256-alinea, en de map-in-map-alinea weghalen. -->
         <p>Ga naar <a href="https://github.com/SirSquirell/Claudiclaude">de broncode op GitHub</a>, klik op de groene knop <b>Code</b> en dan op <b>Download ZIP</b>.</p>
-        <p>Pak het ZIP-bestand uit op een plek waar het mag blijven staan, bijvoorbeeld <code>Documenten\degiro-portfolio</code>. <b>Niet in Downloads laten staan</b>: Chrome laadt de extensie elke keer opnieuw vanaf die map, dus als je hem later opruimt werkt de extensie niet meer.</p>
+        <p>Pak het ZIP-bestand uit op een plek waar het mag blijven staan, bijvoorbeeld <code>Documenten\asteria</code>. <b>Niet in Downloads laten staan</b>: Chrome laadt de extensie elke keer opnieuw vanaf die map, dus als je hem later opruimt werkt de extensie niet meer.</p>
         <p><b>Let op: er zit een map in een map.</b> GitHub's ZIP pakt uit als <code>Claudiclaude-main\Claudiclaude-main\</code>, en alleen de binnenste bevat <code>manifest.json</code>. Je kunt de binnenste map er gerust uit slepen en de lege buitenste weggooien.</p>
         <p>Controleer even dat je in de goede map staat: je moet <code>manifest.json</code> zien staan, naast mappen als <code>src</code> en <code>icons</code>.</p>
       </li>
@@ -173,8 +174,8 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
           <li>Klik linksboven op <b>Uitgepakte extensie laden</b></li>
           <li>Selecteer de map uit stap 1, die met <code>manifest.json</code> erin, niet de map daarboven</li>
         </ol>
-        <div class="note-box"><b>"Manifest file is missing or unreadable"?</b> Dan heb je de buitenste map geselecteerd. Klik <b>Retry</b>, ga één niveau dieper en kies de map waar <code>manifest.json</code> in staat. Dit is de meest gemaakte fout en hij ligt aan de ZIP, niet aan jou.</div>
-        <p>Er verschijnt nu een kaartje "DEGIRO Portfolio History". Klik op het puzzelstukje in de werkbalk en zet de extensie vast (het speldje), dan blijft het icoontje zichtbaar.</p>
+        <div class="note-box"><b>"Manifest file is missing or unreadable"?</b> Dan heb je de buitenste map geselecteerd. Klik <b>Retry</b>, ga één niveau dieper en kies de map waar <code>manifest.json</code> in staat. Dit is de meest gemaakte fout.</div>
+        <p>Er verschijnt nu een kaartje "Asteria". Klik op het puzzelstukje in de werkbalk en zet de extensie vast (het speldje), dan blijft het icoontje zichtbaar.</p>
       </li>
 
       <li class="step">
