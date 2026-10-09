@@ -3,7 +3,9 @@
 Statische GitHub Pages-site voor Asteria. Twee pagina's in de root:
 `index.html` is de hoofdpagina, `handleiding.html` is de installatiehandleiding
 (overgenomen uit `INSTALL.md` in de Claudiclaude-repo, zodat een bezoeker niet
-naar GitHub moet om te installeren). `fonts/` bevat de zelfgehoste
+naar GitHub moet om te installeren). Verandert INSTALL.md daar, dan volgt
+`handleiding.html` in dezelfde week; de enige bewuste afwijking staat als
+comment boven stap 1. `fonts/` bevat de zelfgehoste
 Archivo-instances, `og.png` is het gerenderde Open Graph-beeld, `robots.txt`
 en `sitemap.xml` staan in de root omdat dit het enige pad is dat GitHub Pages
 voor dit domein serveert.
@@ -20,8 +22,10 @@ De footer toont twee versies, `extensie <b id="ver">` en `pagina
 
 `tools/inject-version.mjs --manifest <pad naar manifest.json>` zet ze goed
 en werkt ook `sitemap.xml`s `<lastmod>` bij. `.github/workflows/pages.yml`
-doet dit automatisch bij elke push naar `main`, door Claudiclaude er even
-naast te clonen.
+doet dit automatisch bij elke push naar `main`, door van Claudiclaude alleen
+`manifest.json` binnen te halen (sparse checkout). Wat de workflow publiceert
+is een allowlist in de stap "Site samenstellen": wat daar niet staat gaat niet
+mee, dus een nieuw bestand voor de site moet ook in `pages.yml`.
 
 **Eenmalige handmatige stap:** ga naar Settings > Pages > Build and
 deployment > Source en zet die op **GitHub Actions**. Pages publiceert nu

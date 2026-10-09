@@ -53,8 +53,12 @@ Meld wat er gebeurt. Geen codewijziging tenzij het misgaat.
    geladen extensie.
 2. Klikken opent de app-pagina van de extensie met demomodus aan, in een nieuw
    tabblad, zonder dat de eigen rekening wordt aangeraakt.
-3. Met de extensie uitgeschakeld in `chrome://extensions` valt de knop na
-   2,5 s terug op *Handleiding openen* met de bijbehorende tekst.
+3. Met de extensie uitgeschakeld in `chrome://extensions` staat de knop binnen
+   een seconde op *Eerst installeren* met de tekst *Geen extensie in deze
+   browser ...*. De variant *Handleiding openen* (met *chrome://extensions*
+   vet) verschijnt alleen als een gevonden extensie na een klik niet binnen
+   2,5 s antwoordt; die is te zien door de extensie na *Extensie gevonden* uit
+   te zetten en dan pas te klikken.
 
 **Afhankelijkheden.** Een browser met de extensie; AS-01 niet nodig (de
 knop staat al live), wel handig zodat het versienummer klopt.
@@ -273,4 +277,34 @@ Playwright-action als die gebruikt wordt.
 
 ---
 
-Eerstvolgende vrije nummer: **AS-15**.
+## AS-15 Inline script onder een hash-CSP
+
+**Waarom.** De meta-CSP (AS-11) staat `script-src 'unsafe-inline'` toe omdat alle
+logica één inline `<script>` in `index.html` is. Daarmee houdt de CSP geen
+geïnjecteerd inline script tegen. Vandaag is er geen invoer die dat kan
+veroorzaken (alle teksten gaan via `textContent`, nul inline handlers), dus
+dit is hardening, geen defect.
+
+**Scope.** `script-src 'sha256-<hash>'` in plaats van `'unsafe-inline'`, met
+een kleine stap in `tools/inject-version.mjs` (of een los script) die de hash
+van het `<script>`-blok berekent en in de meta zet, zodat één bestand voor de
+pagina blijft gelden. `frame-ancestors` kan een meta-CSP niet; als framing
+ooit een zorg wordt is een `if (top !== self)`-guard het enige dat GitHub
+Pages toestaat.
+
+**Acceptatiecriteria.**
+1. `grep unsafe-inline index.html handleiding.html` geeft alleen nog
+   `style-src`.
+2. `node tools/check-overflow.mjs` blijft groen (lege console betekent: geen
+   CSP-overtreding, demoknop draait).
+3. Een bewust gewijzigde byte in het script zonder herhash laat de check rood
+   worden.
+
+**Afhankelijkheden.** AS-01, zodat de hash in CI gezet kan worden en niet met
+de hand.
+
+**Test.** Criterium 2 en 3.
+
+---
+
+Eerstvolgende vrije nummer: **AS-16**.

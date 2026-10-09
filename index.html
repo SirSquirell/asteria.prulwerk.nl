@@ -34,7 +34,7 @@
   "alternateName": "DEGIRO Portfolio History",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Chrome 116+",
-  "softwareVersion": "0.68.0",
+  "softwareVersion": "0.74.1",
   "inLanguage": "nl-NL",
   "url": "https://asteria.prulwerk.nl/",
   "codeRepository": "https://github.com/SirSquirell/Claudiclaude",
@@ -768,7 +768,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
         </div>
         <div class="ui">
           <div class="ui-in">
-            <p class="period">Whole history · 2021-01-04 → 2026-08-18</p>
+            <p class="period">Hele historie · 2021-01-04 → 2026-08-18</p>
             <div class="range" role="group" aria-label="Periode">
               <span class="lbl">Range</span>
               <button type="button" aria-pressed="false">1M</button>
@@ -929,7 +929,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
                 <span class="num neg">€ -1.269,35</span><span class="num neg">-11,13%</span>
               </div>
             </div>
-            <p class="note">Whole history, nooit de geselecteerde periode. Een jaarrendement ketent de dagrendementen. Een storting binnenin vertekent het niet.</p>
+            <p class="note">Hele historie, nooit de geselecteerde periode. Een jaarrendement ketent de dagrendementen. Een storting binnenin vertekent het niet.</p>
           </div>
         </div>
       </div>
@@ -1251,7 +1251,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
 <div class="shell">
     <footer>
       <span>Asteria · een project van prulwerk.nl</span>
-      <span class="ver">extensie <b id="ver">0.68.0</b> · pagina <b id="sitever">2026.09.02</b></span>
+      <span class="ver">extensie <b id="ver">0.74.1</b> · pagina <b id="sitever">2026.10.09</b></span>
       <span class="flinks">
         <a href="https://github.com/SirSquirell/Claudiclaude">Broncode</a>
         <a href="/handleiding.html">Handleiding</a>
@@ -1294,7 +1294,7 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
     g.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
     b.setAttribute('aria-pressed','true');
     var label = { '1M':'Laatste maand','3M':'Laatste 3 maanden','6M':'Laatste 6 maanden',
-                  'YTD':'Dit jaar','1Y':'Laatste 12 maanden','ALL':'Whole history' }[b.textContent.trim()];
+                  'YTD':'Dit jaar','1Y':'Laatste 12 maanden','ALL':'Hele historie' }[b.textContent.trim()];
     var p = g.parentElement.querySelector('.period');
     if (!p) return;
     // Zelfde swap-idioom als de demoknop verderop: kort uitfaden, tekst
@@ -1317,7 +1317,9 @@ footer a{text-decoration:none; color:var(--text-2); transition:color .25s var(--
 //   2. Deze pagina dispatcht window CustomEvent 'asteria:open-demo'.
 //      Het content script relayt dat naar de service worker, die de options page
 //      opent met demomodus aan.
-//   3. Lukt dat niet binnen 2.5s, dan valt de knop terug op de handleiding.
+//   3. Meldt geen extensie zich binnen 900 ms, dan wordt de knop 'Eerst installeren'
+//      en linkt hij naar de handleiding. Antwoordt een gevonden extensie na een klik
+//      niet binnen 2,5 s met 'asteria:demo-open', dan wordt hij 'Handleiding openen'.
 //
 // Geen extensie-ID nodig, dus dit werkt ook bij een unpacked install waar het ID
 // per gebruiker verschilt. Zie US-97 in docs/BACKLOG.md van Claudiclaude voor de kant van de extensie.
